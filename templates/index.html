@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Início{% endblock %}
+{% block content %}
+<section style="min-height:70vh; display:grid; place-items:center; text-align:center;">
+  <div style="max-width:900px;">
+    <h1 style="font-size: clamp(36px, 6vw, 72px); font-weight:800; line-height:1.02;">
+      <span style="color:#ef4444;">Cibersegurança</span> para o Mundo Real
+    </h1>
+    <p style="color:#9aa0a6; margin-top:14px; font-size:18px;">
+      Cursos práticos, laboratórios CTF e certificações — aprenda o que o mercado exige.
+    </p>
+    <div style="margin-top:22px; display:flex; gap:12px; justify-content:center;">
+      <a class="btn btn-primary" href="{{ url_for('courses') }}">Explorar Cursos</a>
+      <a class="btn btn-ghost" href="{{ url_for('ctfs') }}">Participar de CTFs</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

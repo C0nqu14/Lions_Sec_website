@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Desafios CTF{% endblock %}
+{% block content %}
+<h1 class="page-title">Desafios Capture The Flag</h1>
+<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;">
+  {% for challenge in challenges %}
+  <a href="{{ url_for('ctf_challenge', ctf_id=challenge.id) }}" class="card" style="text-decoration:none;">
+    <h2 style="font-weight:800;">{{ challenge.title }}</h2>
+    <p class="muted">{{ challenge.description }}</p>
+    <div style="margin-top:8px;">
+      <span class="tag">Dificuldade: {{ challenge.difficulty }}</span>
+      <span class="tag" style="margin-left:8px;">Pontos: {{ challenge.points }}</span>
+    </div>
+  </a>
+  {% else %}
+    <p class="muted">Nenhum desafio ainda.</p>
+  {% endfor %}
+</div>
+{% endblock %}

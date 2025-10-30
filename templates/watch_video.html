@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Assistir - {{ course.title }}{% endblock %}
+{% block content %}
+<div style="display:grid; grid-template-columns:1fr; gap:16px;">
+  <div class="card">
+    <h1 class="card-title">{{ course.title }}</h1>
+    <div style="position:relative; width:100%; padding-top:56.25%; border-radius:10px; overflow:hidden; background:#000;">
+      {% set first = videos[0] if videos else None %}
+      {% if first %}
+        <iframe src="{{ first.video_url }}" style="position:absolute; inset:0; width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>
+      {% else %}
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#777;">Nenhum vídeo no curso ainda.</div>
+      {% endif %}
+    </div>
+    <div style="margin-top:12px; color:#9aa0a6;">{{ course.description }}</div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-weight:800;">Módulos</h2>
+    <ul style="margin-top:8px;">
+      {% for video in videos %}
+      <li style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,.03);">{{ video.order_in_course }}. {{ video.title }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

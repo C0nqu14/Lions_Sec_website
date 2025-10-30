@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Criar Desafio CTF{% endblock %}
+{% block content %}
+<div class="card" style="max-width:720px; margin:2rem auto;">
+  <h2 class="card-title">Criar Novo Desafio CTF</h2>
+  <form method="POST" action="{{ url_for('create_ctf') }}" style="display:flex; flex-direction:column; gap:12px;">
+    <label class="label">Título</label>
+    <input class="input" name="title" required />
+    <label class="label">Descrição</label>
+    <textarea class="input" name="description" rows="4" required></textarea>
+    <div style="display:flex; gap:10px;">
+      <div style="flex:1;">
+        <label class="label">Dificuldade</label>
+        <select class="input" name="difficulty"><option>Fácil</option><option>Médio</option><option>Difícil</option></select>
+      </div>
+      <div style="width:140px;">
+        <label class="label">Pontos</label>
+        <input class="input" type="number" name="points" required />
+      </div>
+    </div>
+    <label class="label">Flag (será armazenada com hash)</label>
+    <input class="input" name="flag" placeholder="LIONS_SEC{...}" required />
+    <button class="btn btn-primary" type="submit">Criar Desafio</button>
+  </form>
+</div>
+{% endblock %}

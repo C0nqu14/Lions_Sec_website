@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Gerenciar Vídeos - {{ course.title }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h1 class="card-title">Gerenciar Vídeos do Curso: {{ course.title }}</h1>
+  <p class="muted">{{ course.description }}</p>
+
+  <div style="margin-top:12px;" class="card">
+    <h2 style="font-weight:800;">Adicionar Novo Vídeo</h2>
+    <form method="POST" action="{{ url_for('manage_videos', course_id=course.id) }}" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+      <input class="input" name="video_title" placeholder="Título" required />
+      <input class="input" name="video_order" placeholder="Ordem (número)" required />
+      <input class="input" name="video_url" placeholder="URL do vídeo (embed)" style="grid-column:1/3" required />
+      <button class="btn btn-primary" style="grid-column:1/3" type="submit">Adicionar Vídeo</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <h2 style="font-weight:800;">Vídeos Existentes</h2>
+    {% if videos %}
+      <ul style="margin-top:8px;">
+        {% for video in videos %}
+          <li style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,.03);">{{ video.order_in_course }}. {{ video.title }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">Nenhum vídeo adicionado ainda.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

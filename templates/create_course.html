@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Criar Curso{% endblock %}
+{% block content %}
+<div class="card" style="max-width:720px; margin:2rem auto;">
+  <h2 class="card-title">Criar Novo Curso</h2>
+  <form method="POST" action="{{ url_for('create_course') }}" style="display:flex; flex-direction:column; gap:12px;">
+    <label class="label">Título do Curso</label>
+    <input class="input" name="title" required />
+    <label class="label">Descrição</label>
+    <textarea class="input" name="description" rows="6" required></textarea>
+    <button class="btn btn-primary" type="submit">Criar Curso</button>
+  </form>
+</div>
+{% endblock %}

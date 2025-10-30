@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Painel do Professor{% endblock %}
+{% block content %}
+<div class="card">
+  <h1 class="card-title">Painel do Professor</h1>
+  <p class="muted">Olá, Prof. {{ current_user.username }}. Gerencie seus cursos aqui.</p>
+  <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:12px;">
+    <a href="{{ url_for('create_course') }}" class="card"><h3 style="font-weight:800;">Criar Novo Curso</h3></a>
+    <a href="{{ url_for('professor_courses') }}" class="card"><h3 style="font-weight:800;">Meus Cursos</h3></a>
+  </div>
+</div>
+{% endblock %}

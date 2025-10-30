@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Meus Cursos{% endblock %}
+{% block content %}
+<h1 class="page-title">Meus Cursos</h1>
+<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;">
+  {% for enrollment in enrolled_courses %}
+  <a href="{{ url_for('watch_course', course_id=enrollment.course.id) }}" class="card" style="text-decoration:none;">
+    <h2 style="font-weight:800;">{{ enrollment.course.title }}</h2>
+    <p class="muted" style="margin-top:8px;">{{ enrollment.course.description }}</p>
+    <button class="btn btn-primary" style="margin-top:10px; width:100%;">Assistir</button>
+  </a>
+  {% else %}
+    <p class="muted">Você não está inscrito em nenhum curso.</p>
+  {% endfor %}
+</div>
+{% endblock %}

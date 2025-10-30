@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Dashboard do Aluno{% endblock %}
+{% block content %}
+<h1 class="page-title">Seu Dashboard</h1>
+<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px;">
+  <a href="{{ url_for('my_courses') }}" class="card"><h3 style="font-weight:800;">Meus Cursos</h3><p class="muted">Acompanhe o progresso.</p></a>
+  <a href="{{ url_for('ctfs') }}" class="card"><h3 style="font-weight:800;">Desafios CTF</h3><p class="muted">Participe e suba no ranking.</p></a>
+  <a href="{{ url_for('ctf_ranking') }}" class="card"><h3 style="font-weight:800;">Ranking</h3><p class="muted">Veja sua posição.</p></a>
+</div>
+{% endblock %}

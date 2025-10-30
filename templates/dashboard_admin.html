@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Dashboard do Admin{% endblock %}
+{% block content %}
+<h1 class="page-title">Dashboard do Administrador</h1>
+<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px;">
+  <a href="{{ url_for('professor_courses') }}" class="card"><h3 style="font-weight:800;">Gerenciar Cursos</h3><p class="muted">Crie, edite e exclua cursos.</p></a>
+  <a href="{{ url_for('create_ctf') }}" class="card"><h3 style="font-weight:800;">Criar Desafios CTF</h3><p class="muted">Adicione desafios competitivos.</p></a>
+  <a href="{{ url_for('ctf_ranking') }}" class="card"><h3 style="font-weight:800;">Visualizar Ranking</h3><p class="muted">Acompanhe pontuações.</p></a>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Registrar{% endblock %}
+{% block content %}
+<div class="card" style="max-width:520px; margin:2.5rem auto;">
+  <h2 class="card-title">Criar Conta</h2>
+  <form method="POST" action="{{ url_for('register') }}" style="display:flex; flex-direction:column; gap:12px;">
+    <label class="label">Nome de Usuário</label>
+    <input class="input" type="text" name="username" required />
+    <label class="label">Email</label>
+    <input class="input" type="email" name="email" required />
+    <label class="label">Senha</label>
+    <input class="input" type="password" name="password" required />
+    <button class="btn btn-primary" type="submit">Registrar</button>
+  </form>
+</div>
+{% endblock %}

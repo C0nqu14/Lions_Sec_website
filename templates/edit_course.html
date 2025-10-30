@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Editar Curso{% endblock %}
+{% block content %}
+<div class="card" style="max-width:720px; margin:2rem auto;">
+  <h2 class="card-title">Editar Curso</h2>
+  <form method="POST" action="{{ url_for('edit_course', course_id=course.id) }}" style="display:flex; flex-direction:column; gap:12px;">
+    <label class="label">Título</label>
+    <input class="input" name="title" value="{{ course.title }}" required />
+    <label class="label">Descrição</label>
+    <textarea class="input" name="description" rows="6" required>{{ course.description }}</textarea>
+    <button class="btn btn-primary" type="submit">Salvar Alterações</button>
+  </form>
+</div>
+{% endblock %}

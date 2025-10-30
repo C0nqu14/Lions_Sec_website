@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Ranking de CTF{% endblock %}
+{% block content %}
+<h1 class="page-title">Ranking de CTF</h1>
+<div class="card" style="overflow:hidden;">
+  <table style="width:100%; border-collapse:collapse;">
+    <thead style="background:rgba(255,255,255,.03);">
+      <tr>
+        <th style="padding:12px; text-align:left;">Posição</th>
+        <th style="padding:12px; text-align:left;">Utilizador</th>
+        <th style="padding:12px; text-align:left;">Pontuação Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if ranking %}
+        {% for r in ranking %}
+        <tr style="border-top:1px solid rgba(255,255,255,.03);">
+          <td style="padding:12px;">{{ loop.index }}</td>
+          <td style="padding:12px;">{{ r.username }}</td>
+          <td style="padding:12px; color:#22c55e; font-weight:800;">{{ r.total_score }}</td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="3" style="padding:18px; text-align:center; color:#9aa0a6;">Nenhum resultado ainda.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

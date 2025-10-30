@@ -1,0 +1,40 @@
+<div id="mascot" class="fixed bottom-4 right-4 w-40 z-50">
+    <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- corpo -->
+      <circle cx="150" cy="60" r="30" fill="#0f0" stroke="#111" stroke-width="3"/>
+      <!-- olhos piscando -->
+      <circle id="eyeL" cx="140" cy="60" r="5" fill="#fff"/>
+      <circle id="eyeR" cx="160" cy="60" r="5" fill="#fff"/>
+      <!-- laptop -->
+      <rect x="120" y="100" width="60" height="35" rx="4" fill="#111" stroke="#0f0"/>
+      <text x="124" y="122" font-size="12" fill="#0f0">root@lion</text>
+      <!-- braços mexendo -->
+      <line x1="120" y1="90" x2="100" y2="110" stroke="#0f0" stroke-width="4">
+        <animate attributeName="x2" values="100;110;100" dur="1s" repeatCount="indefinite"/>
+      </line>
+      <line x1="180" y1="90" x2="200" y2="110" stroke="#0f0" stroke-width="4">
+        <animate attributeName="x2" values="200;190;200" dur="1s" repeatCount="indefinite"/>
+      </line>
+      <!-- corpo correndo -->
+      <line x1="150" y1="90" x2="150" y2="140" stroke="#0f0" stroke-width="4"/>
+      <line x1="150" y1="140" x2="130" y2="170" stroke="#0f0" stroke-width="4">
+        <animate attributeName="x2" values="130;140;130" dur="0.5s" repeatCount="indefinite"/>
+      </line>
+      <line x1="150" y1="140" x2="170" y2="170" stroke="#0f0" stroke-width="4">
+        <animate attributeName="x2" values="170;160;170" dur="0.5s" repeatCount="indefinite"/>
+      </line>
+    </svg>
+  </div>
+  
+
+
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+<lottie-player 
+    src="https://assets2.lottiefiles.com/packages/lf20_jcikwtux.json"  
+    background="transparent"  
+    speed="1"  
+    style="width: 200px; height: 200px; position:fixed; right:20px; bottom:20px; z-index:60;"  
+    loop  
+    autoplay>
+</lottie-player>

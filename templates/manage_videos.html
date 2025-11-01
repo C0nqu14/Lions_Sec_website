@@ -1,31 +1,76 @@
 {% extends "base.html" %}
-{% block title %}Gerenciar Vídeos - {{ course.title }}{% endblock %}
+
+{% block title %}Gerenciar Vídeos - {{ module.title }}{% endblock %}
+
 {% block content %}
-<div class="card">
-  <h1 class="card-title">Gerenciar Vídeos do Curso: {{ course.title }}</h1>
-  <p class="muted">{{ course.description }}</p>
+<div class="card" style="max-width: 800px; margin: 20px auto; padding: 20px;">
+    
+    <!-- Título Principal e Descrição (Usando o título do MÓDULO) -->
+    <h1 class="card-title" style="margin-bottom: 5px;">
+        Gerenciar Vídeos do Módulo: {{ module.title }}
+    </h1>
+    <p class="muted" style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 15px;">
+        Curso: {{ course.title }}
+    </p>
 
-  <div style="margin-top:12px;" class="card">
-    <h2 style="font-weight:800;">Adicionar Novo Vídeo</h2>
-    <form method="POST" action="{{ url_for('manage_videos', course_id=course.id) }}" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
-      <input class="input" name="video_title" placeholder="Título" required />
-      <input class="input" name="video_order" placeholder="Ordem (número)" required />
-      <input class="input" name="video_url" placeholder="URL do vídeo (embed)" style="grid-column:1/3" required />
-      <button class="btn btn-primary" style="grid-column:1/3" type="submit">Adicionar Vídeo</button>
-    </form>
-  </div>
+    <!-- Formulário para Adicionar Novo Vídeo (CORREÇÃO DE BUG APLICADA AQUI) -->
+    <div class="card" style="margin-top:12px;">
+        <h2 style="font-weight:800; font-size: 1.25rem; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 5px; margin-bottom: 10px;">
+            <i class="fas fa-plus-circle"></i> Adicionar Novo Vídeo
+        </h2>
+        
+        <!-- Ação do formulário corrigida para incluir module_id, conforme a rota de gestão de vídeos -->
+        <form method="POST" action="{{ url_for('manage_videos', module_id=module.id) }}" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+            <input class="input" name="video_title" placeholder="Título" required style="grid-column:1/3;" />
+            
+            <input class="input" name="video_order" placeholder="Ordem (número)" type="number" min="1" required />
+            
+            <input class="input" name="video_url" placeholder="URL do vídeo (embed)" required />
+            
+            <input class="input" name="video_description" placeholder="Descrição Curta (Opcional)" style="grid-column:1/3" />
+            
+            <button class="btn btn-primary" style="grid-column:1/3" type="submit">
+                <i class="fas fa-save"></i> Adicionar Vídeo
+            </button>
+        </form>
+    </div>
 
-  <div class="card" style="margin-top:12px;">
-    <h2 style="font-weight:800;">Vídeos Existentes</h2>
-    {% if videos %}
-      <ul style="margin-top:8px;">
-        {% for video in videos %}
-          <li style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,.03);">{{ video.order_in_course }}. {{ video.title }}</li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="muted">Nenhum vídeo adicionado ainda.</p>
-    {% endif %}
-  </div>
+    <!-- Seção de Vídeos Existentes -->
+    <div class="card" style="margin-top:25px;">
+        <h2 style="font-weight:800; font-size: 1.25rem; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 5px; margin-bottom: 10px;">
+            Vídeos Existentes ({{ videos|length }})
+        </h2>
+        {% if videos %}
+            <ul style="list-style: none; padding: 0; margin-top:8px;">
+                {% for video in videos|sort(attribute='order_in_module') %}
+                    <li style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px dashed rgba(255,255,255,.05); background-color: rgba(0, 0, 0, 0.03); border-radius: 4px; margin-bottom: 6px;">
+                        <span style="font-weight: 600;">
+                            {{ video.order_in_module }}. {{ video.title }}
+                        </span>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="{{ url_for('edit_video', video_id=video.id) }}" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <form action="{{ url_for('delete_video', video_id=video.id) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja deletar o vídeo \'{{ video.title }}\'?');">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash-alt"></i> Deletar
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted" style="padding: 10px; border: 1px dashed #ccc; border-radius: 4px; text-align: center;">Nenhum vídeo adicionado ainda neste módulo.</p>
+        {% endif %}
+    </div>
+
+    <!-- Link de retorno -->
+    <div style="margin-top: 20px; text-align: center;">
+        <a href="{{ url_for('manage_course', course_id=course.id) }}" class="muted" style="text-decoration: none;">
+            <i class="fas fa-arrow-left"></i> Voltar para Gerenciar Curso ({{ course.title }})
+        </a>
+    </div>
+
 </div>
 {% endblock %}

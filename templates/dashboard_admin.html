@@ -1,10 +1,43 @@
 {% extends "base.html" %}
-{% block title %}Dashboard do Admin{% endblock %}
+{% block title %}Dashboard Admin{% endblock %}
 {% block content %}
-<h1 class="page-title">Dashboard do Administrador</h1>
-<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px;">
-  <a href="{{ url_for('professor_courses') }}" class="card"><h3 style="font-weight:800;">Gerenciar Cursos</h3><p class="muted">Crie, edite e exclua cursos.</p></a>
-  <a href="{{ url_for('create_ctf') }}" class="card"><h3 style="font-weight:800;">Criar Desafios CTF</h3><p class="muted">Adicione desafios competitivos.</p></a>
-  <a href="{{ url_for('ctf_ranking') }}" class="card"><h3 style="font-weight:800;">Visualizar Ranking</h3><p class="muted">Acompanhe pontuações.</p></a>
+<h1 class="page-title">Dashboard de Administrador</h1>
+
+<div class="card" style="margin-bottom: 25px;">
+    <h2 style="font-weight: 800; font-size: 1.5rem; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 10px; margin-bottom: 15px;">
+        Controle de Plataforma
+    </h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        
+        <a href="{{ url_for('manage_users') }}" class="card-action-link" style="text-decoration: none; display: block; flex: 1 1 300px; padding: 15px; border: 1px solid #3b82f6; border-radius: 8px; background-color: rgba(59, 130, 246, 0.1);">
+            <i class="fas fa-users" style="font-size: 2rem; color: #3b82f6;"></i>
+            <h3 style="font-weight: 600; margin-top: 5px; color: #3b82f6;">Gerenciar Usuários</h3>
+            <p class="muted" style="font-size: 0.9rem;">Listar, deletar usuários e criar professores.</p>
+        </a>
+
+        <a href="{{ url_for('manage_enrollments') }}" class="card-action-link" style="text-decoration: none; display: block; flex: 1 1 300px; padding: 15px; border: 1px solid #d97706; border-radius: 8px; background-color: rgba(217, 119, 6, 0.1);">
+            <i class="fas fa-user-check" style="font-size: 2rem; color: #d97706;"></i>
+            <h3 style="font-weight: 600; margin-top: 5px; color: #d97706;">Autorizar Inscrições</h3>
+            <p class="muted" style="font-size: 0.9rem;">Aprovar ou rejeitar pedidos de alunos.</p>
+        </a>
+
+        <a href="{{ url_for('professor_courses') }}" class="card-action-link" style="text-decoration: none; display: block; flex: 1 1 300px; padding: 15px; border: 1px solid #22c55e; border-radius: 8px; background-color: rgba(34, 197, 94, 0.1);">
+            <i class="fas fa-book-open" style="font-size: 2rem; color: #22c55e;"></i>
+            <h3 style="font-weight: 600; margin-top: 5px; color: #22c55e;">Gerenciar TODOS Cursos</h3>
+            <p class="muted" style="font-size: 0.9rem;">Crie, edite e delete conteúdo.</p>
+        </a>
+        
+        <a href="{{ url_for('create_ctf') }}" class="card-action-link" style="text-decoration: none; display: block; flex: 1 1 300px; padding: 15px; border: 1px solid #6366f1; border-radius: 8px; background-color: rgba(99, 102, 241, 0.1);">
+            <i class="fas fa-flag" style="font-size: 2rem; color: #6366f1;"></i>
+            <h3 style="font-weight: 600; margin-top: 5px; color: #6366f1;">Criar Desafios CTF</h3>
+            <p class="muted" style="font-size: 0.9rem;">Adicione novos desafios competitivos.</p>
+        </a>
+
+    </div>
 </div>
+
+<div style="margin-top: 30px; text-align: center;">
+    <p class="muted">Você está logado como Administrador ({{ current_user.username }}).</p>
+</div>
+
 {% endblock %}

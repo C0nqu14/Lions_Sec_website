@@ -1,27 +1,51 @@
 {% extends "base.html" %}
 {% block title %}Assistir - {{ course.title }}{% endblock %}
 {% block content %}
-<div style="display:grid; grid-template-columns:1fr; gap:16px;">
-  <div class="card">
-    <h1 class="card-title">{{ course.title }}</h1>
-    <div style="position:relative; width:100%; padding-top:56.25%; border-radius:10px; overflow:hidden; background:#000;">
-      {% set first = videos[0] if videos else None %}
-      {% if first %}
-        <iframe src="{{ first.video_url }}" style="position:absolute; inset:0; width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>
-      {% else %}
-        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#777;">Nenhum vídeo no curso ainda.</div>
-      {% endif %}
+<div style="display:grid; grid-template-columns:3fr 1fr; gap:16px;">
+  
+  <div>
+    <div class="card">
+        <h1 class="card-title">{{ course.title }}</h1>
+        
+        <div style="position:relative; width:100%; padding-top:56.25%; border-radius:10px; overflow:hidden; background:#000;">
+          {% if current_video %}
+            <iframe src="{{ current_video.video_url }}" style="position:absolute; inset:0; width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>
+          {% else %}
+            <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#777;">Nenhum vídeo para assistir.</div>
+          {% endif %}
+        </div>
+        
+        {% if current_video %}
+            <h2 style="font-weight:800; margin-top:12px; color:#22c55e;">{{ current_video.module.title }} > {{ current_video.title }}</h2>
+        {% endif %}
+
+        <div style="margin-top:12px; color:#9aa0a6;">{{ course.description }}</div>
     </div>
-    <div style="margin-top:12px; color:#9aa0a6;">{{ course.description }}</div>
   </div>
 
   <div class="card">
-    <h2 style="font-weight:800;">Módulos</h2>
-    <ul style="margin-top:8px;">
-      {% for video in videos %}
-      <li style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,.03);">{{ video.order_in_course }}. {{ video.title }}</li>
-      {% endfor %}
-    </ul>
+    <h2 style="font-weight:800; margin-bottom:12px;">Conteúdo do Curso</h2>
+    
+    {% for module in modules %}
+      <div style="border-bottom:1px solid rgba(255,255,255,.05); margin-bottom:10px; padding-bottom:10px;">
+        <h3 style="font-weight:700; color:#ef4444; margin-bottom:6px;">{{ module.order_in_course }}. {{ module.title }}</h3>
+        <ul style="list-style:none; padding-left:10px;">
+          {% for video in module.videos %}
+            {% set is_active = (current_video and current_video.id == video.id) %}
+            <li style="padding:4px 0;">
+              <a href="{{ url_for('watch_course', course_id=course.id, video_id=video.id) }}" 
+                 style="display:block; text-decoration:none; font-size:.9rem;
+                 color:{{ '#22c55e' if is_active else '#9aa0a6' }}; font-weight:{{ 'bold' if is_active else 'normal' }};"
+                 class="hover:text-cyan-400">
+                {% if is_active %} ⚡ {% else %} &bull; {% endif %} {{ video.order_in_course }}. {{ video.title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% else %}
+      <p class="muted">Nenhum módulo neste curso ainda.</p>
+    {% endfor %}
   </div>
 </div>
 {% endblock %}

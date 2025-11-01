@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Gerenciar Usuários{% endblock %}
+{% block content %}
+<h1 class="page-title">Gestão de Usuários (Admin)</h1>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <p class="muted">Listagem de todos os usuários (excluindo o Admin logado).</p>
+    <a href="{{ url_for('create_professor') }}" class="btn btn-info">+ Criar Conta de Professor</a>
+</div>
+
+<div class="card">
+    <table style="width:100%; border-collapse:collapse; text-align:left;">
+        <thead style="border-bottom:2px solid #22c55e;">
+            <tr style="color:#22c55e;">
+                <th style="padding:8px;">ID</th>
+                <th style="padding:8px;">Nome</th>
+                <th style="padding:8px;">Email</th>
+                <th style="padding:8px;">Tipo</th>
+                <th style="padding:8px;">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr style="border-bottom:1px solid rgba(255,255,255,.05);">
+                <td style="padding:8px;">{{ user.id }}</td>
+                <td style="padding:8px; font-weight:bold;">{{ user.username }}</td>
+                <td style="padding:8px;">{{ user.email }}</td>
+                <td style="padding:8px;">
+                    <span style="color:{% if user.user_type == 'admin' %}#ef4444{% elif user.user_type == 'professor' %}#f59e0b{% else %}#3b82f6{% endif %}; font-weight:600;">
+                        {{ user.user_type|upper }}
+                    </span>
+                </td>
+                <td style="padding:8px;">
+                    {% if user.user_type != 'admin' %}
+                    <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja deletar o usuário {{ user.username }}?')">Deletar</button>
+                    </form>
+                    {% else %}
+                    <span class="muted">Não Deletável</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

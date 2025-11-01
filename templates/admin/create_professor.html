@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Criar Professor{% endblock %}
+{% block content %}
+<div style="max-width:400px; margin:0 auto;">
+    <h1 class="page-title">Criar Conta de Professor</h1>
+    <div class="card">
+        <form method="POST">
+            <label for="username" class="label">Nome de Usuário:</label>
+            <input type="text" id="username" name="username" class="input" required>
+            
+            <label for="email" class="label" style="margin-top:10px;">Email:</label>
+            <input type="email" id="email" name="email" class="input" required>
+            
+            <label for="password" class="label" style="margin-top:10px;">Senha Temporária:</label>
+            <input type="password" id="password" name="password" class="input" required>
+            
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px;">Criar Professor</button>
+            <a href="{{ url_for('manage_users') }}" class="btn btn-ghost" style="width:100%; margin-top:10px;">Voltar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

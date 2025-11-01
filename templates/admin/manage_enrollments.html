@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Autorizar Inscrições{% endblock %}
+{% block content %}
+<h1 class="page-title">📝 Autorização de Inscrições (Admin)</h1>
+
+<div class="card">
+    <table style="width:100%; border-collapse:collapse; text-align:left;">
+        <thead style="border-bottom:2px solid #22c55e;">
+            <tr style="color:#22c55e;">
+                <th style="padding:8px;">Aluno</th>
+                <th style="padding:8px;">Curso</th>
+                <th style="padding:8px;">Status</th>
+                <th style="padding:8px;">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for enrollment in enrollments %}
+            <tr style="border-bottom:1px solid rgba(255,255,255,.05);">
+                <td style="padding:8px;">{{ enrollment.student.username }}</td>
+                <td style="padding:8px; font-weight:bold;">{{ enrollment.course.title }}</td>
+                <td style="padding:8px;">
+                    <span style="color:{% if enrollment.status == 'AUTORIZADO' %}#22c55e{% elif enrollment.status == 'PENDENTE' %}#d97706{% else %}#ef4444{% endif %}; font-weight:600;">
+                        {{ enrollment.status|upper }}
+                    </span>
+                </td>
+                <td style="padding:8px;">
+                    {% if enrollment.status == 'PENDENTE' or enrollment.status == 'REJEITADO' %}
+                        <form method="POST" action="{{ url_for('authorize_enrollment', enrollment_id=enrollment.id, action='authorize') }}" style="display:inline; margin-right:5px;">
+                            <button type="submit" class="btn btn-primary btn-sm">Autorizar</button>
+                        </form>
+                    {% endif %}
+                    {% if enrollment.status == 'PENDENTE' or enrollment.status == 'AUTORIZADO' %}
+                        <form method="POST" action="{{ url_for('authorize_enrollment', enrollment_id=enrollment.id, action='reject') }}" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja REJEITAR esta inscrição?')">Rejeitar</button>
+                        </form>
+                    {% endif %}
+                    {% if enrollment.status != 'PENDENTE' and enrollment.status != 'AUTORIZADO' and enrollment.status != 'REJEITADO' %}
+                        <span class="muted">Sem Ação</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

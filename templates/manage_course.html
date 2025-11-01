@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Curso: {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 20px auto; padding: 20px;">
+    
+    <!-- Título Principal e Descrição -->
+    <h1 class="card-title" style="margin-bottom: 5px;">Gerenciar Conteúdo: {{ course.title }}</h1>
+    <p class="muted" style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 15px;">{{ course.description }}</p>
+
+    <!-- Header e Ações do Curso (Editar/Deletar) -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="font-weight: 800; font-size: 1.25rem;">Opções do Curso</h2>
+        <div style="display: flex; gap: 10px;">
+            <a href="{{ url_for('edit_course', course_id=course.id) }}" class="btn btn-secondary">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+            <!-- Botão de Deletar (com aviso visual) -->
+            <form action="{{ url_for('delete_course', course_id=course.id) }}" method="POST" class="inline" onsubmit="return confirm('ATENÇÃO: Deletar este curso é IRREVERSÍVEL e apagará todos os módulos e vídeos. Tem certeza?');">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i> Deletar
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Seção de Módulos Existentes -->
+    <div class="card" style="margin-top: 15px;">
+        <h2 style="font-weight: 800; font-size: 1.25rem; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 5px; margin-bottom: 10px;">
+            Módulos do Curso ({{ course.modules|length }})
+        </h2>
+        
+        <ul style="list-style: none; padding: 0;">
+            {% if course.modules %}
+                {% for module in course.modules %}
+                    <li style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-left: 5px solid #4f46e5; background-color: rgba(79, 70, 229, 0.05); border-radius: 4px; margin-bottom: 8px;">
+                        <span style="font-size: 1rem; font-weight: 600;">
+                            {{ loop.index }}. {{ module.title }} ({{ module.videos|length }} Vídeos)
+                        </span>
+                        <!-- Link para a view que gerencia os vídeos de UM MÓDULO -->
+                        <a href="{{ url_for('manage_videos', module_id=module.id) }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-video"></i> Gerenciar Vídeos
+                        </a>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <p class="muted" style="padding: 10px; border: 1px dashed #ccc; border-radius: 4px; text-align: center;">Nenhum módulo adicionado ainda. Use o formulário abaixo para começar.</p>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Formulário para Adicionar Novo Módulo -->
+    <div class="card" style="margin-top: 25px;">
+        <h2 style="font-weight: 800; font-size: 1.25rem; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 5px; margin-bottom: 10px;">
+            <i class="fas fa-plus-circle"></i> Adicionar Novo Módulo
+        </h2>
+        <form action="{{ url_for('add_module', course_id=course.id) }}" method="POST" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+            
+            <div style="grid-column:1/3;">
+                <label for="module_title" class="muted" style="display: block; margin-bottom: 3px; font-size: 0.9rem;">Título do Módulo</label>
+                <input type="text" id="module_title" name="module_title" required class="input" placeholder="Ex: Introdução ao Pentesting">
+            </div>
+            
+            <div>
+                <label for="module_order" class="muted" style="display: block; margin-bottom: 3px; font-size: 0.9rem;">Ordem</label>
+                <input type="number" id="module_order" name="module_order" value="{{ course.modules|length + 1 }}" min="1" class="input" placeholder="Ordem">
+                <p class="muted" style="font-size: 0.75rem; margin-top: 5px;">Define a ordem de exibição.</p>
+            </div>
+            
+            <div style="grid-column: 2 / 3; display: flex; align-items: flex-end;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-save"></i> Salvar Módulo
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div style="margin-top: 20px; text-align: center;">
+        <a href="{{ url_for('professor_courses') }}" class="muted" style="text-decoration: none;">
+            <i class="fas fa-arrow-left"></i> Voltar para Meus Cursos
+        </a>
+    </div>
+        
+</div>
+{% endblock %}

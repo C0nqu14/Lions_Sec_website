@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Vídeo: {{ video.title }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 20px auto; padding: 20px;">
+    
+    <h1 class="card-title" style="margin-bottom: 5px;">Editar Vídeo: **{{ video.title }}**</h1>
+    <p class="muted" style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 15px;">
+        Curso: {{ course.title }} / Módulo: {{ module.title }}
+    </p>
+
+    <form action="{{ url_for('edit_video', video_id=video.id) }}" method="POST" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+        
+        <div style="grid-column:1/3;">
+            <label for="video_title" class="muted" style="display: block; margin-bottom: 3px; font-size: 0.9rem;">Título do Vídeo</label>
+            <input 
+                type="text" 
+                id="video_title" 
+                name="video_title" 
+                value="{{ video.title }}" 
+                required 
+                class="input" 
+                placeholder="Título do Vídeo"
+            >
+        </div>
+        
+        <div style="grid-column:1/3;">
+            <label for="video_url" class="muted" style="display: block; margin-bottom: 3px; font-size: 0.9rem;">URL / Path do Vídeo</label>
+            <input 
+                type="url" 
+                id="video_url" 
+                name="video_url" 
+                value="{{ video.video_url }}" 
+                required 
+                class="input" 
+                placeholder="Ex: https://youtube.com/watch?v=..."
+            >
+        </div>
+        
+        <div style="grid-column:1/2;">
+            <label for="video_order" class="muted" style="display: block; margin-bottom: 3px; font-size: 0.9rem;">Ordem no Módulo</label>
+            <input 
+                type="number" 
+                id="video_order" 
+                name="video_order" 
+                value="{{ video.order_in_course or 0 }}" 
+                min="0"
+                required 
+                class="input" 
+                placeholder="Ordem"
+            >
+        </div>
+
+        <div style="grid-column: 2 / 3; display: flex; align-items: flex-end;">
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <i class="fas fa-save"></i> Salvar Alterações
+            </button>
+        </div>
+        
+        </form>
+    
+    <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,.05); padding-top: 15px; text-align: center;">
+        <a href="{{ url_for('manage_videos', module_id=module.id) }}" class="muted" style="text-decoration: none;">
+            <i class="fas fa-arrow-left"></i> Voltar para Gerenciar Vídeos
+        </a>
+        
+        <form action="{{ url_for('delete_video', video_id=video.id) }}" method="POST" class="inline" onsubmit="return confirm('ATENÇÃO: Deletar este vídeo é IRREVERSÍVEL. Tem certeza?');" style="margin-top: 15px;">
+            <button type="submit" class="btn btn-danger btn-sm">
+                <i class="fas fa-trash-alt"></i> Deletar Vídeo
+            </button>
+        </form>
+    </div>
+        
+</div>
+{% endblock %}

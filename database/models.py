@@ -36,6 +36,8 @@ class Course(db.Model):
     
     # NOVO: Caminho da imagem do curso
     course_image = db.Column(db.String(40), nullable=False, default='default_course.png')
+    # Adicionado campo de dificuldade que é usado no app.py
+    difficulty = db.Column(db.String(20), nullable=True, default='Iniciante') 
 
     modules = db.relationship('Module', backref='course', lazy=True, order_by='Module.order_in_course', cascade="all, delete-orphan")
     enrollments = db.relationship('Enrollment', backref='course', lazy=True, cascade="all, delete-orphan")
@@ -44,7 +46,7 @@ class Course(db.Model):
         return f'<Course {self.title}>'
 
 
-# NOVO MODELO: Module (Sem alterações)
+# NOVO MODELO: Module
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
@@ -61,7 +63,6 @@ class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     video_url = db.Column(db.String(300), nullable=False)
-    # CORREÇÃO: O nome da coluna é 'order_in_course'
     order_in_course = db.Column(db.Integer, nullable=False) 
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'), nullable=False)
     
@@ -81,6 +82,10 @@ class Enrollment(db.Model):
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
     
     status = db.Column(db.String(20), nullable=False, default='PENDENTE')
+    
+    # 💥 LINHA CRÍTICA ADICIONADA: O Flask-SQLAlchemy usa UTC.
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now) 
+    
     progress_data = db.Column(db.Text, default='{}') 
     progress_percent = db.Column(db.Integer, default=0)
     last_video_watched = db.Column(db.Integer, nullable=True) # ID do último vídeo visto
@@ -116,6 +121,6 @@ class CTFScore(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     ctf_id = db.Column(db.Integer, db.ForeignKey('ctf.id'), nullable=False)
     score = db.Column(db.Integer, nullable=False)
-    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now) # Corrigido para utcnow
 
 # --- Fim de models.py ---

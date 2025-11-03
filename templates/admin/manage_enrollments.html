@@ -65,15 +65,16 @@
                                     {{ enrollment.status }}
                                 </span>
                             </td>
-                            <td>{{ enrollment.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
-                            <td class="text-center">
+                            <td>{{ enrollment.date_posted.strftime('%d/%m/%Y %H:%M') }}</td>                            <td class="text-center">
                                 {% if enrollment.status == 'PENDENTE' %}
-                                    <form method="POST" action="{{ url_for('process_enrollment', enrollment_id=enrollment.id, action='authorize') }}" class="d-inline">
+                                    {# CORREÇÃO 1: Usa 'update_enrollment_status' e 'AUTORIZADO' #}
+                                    <form method="POST" action="{{ url_for('update_enrollment_status', enrollment_id=enrollment.id, status='AUTORIZADO') }}" class="d-inline">
                                         <button type="submit" class="btn btn-sm btn-success me-2" title="Autorizar">
                                             <i class="fas fa-check"></i> Autorizar
                                         </button>
                                     </form>
-                                    <form method="POST" action="{{ url_for('process_enrollment', enrollment_id=enrollment.id, action='deny') }}" class="d-inline">
+                                    {# CORREÇÃO 2: Usa 'update_enrollment_status' e 'NEGADO' #}
+                                    <form method="POST" action="{{ url_for('update_enrollment_status', enrollment_id=enrollment.id, status='NEGADO') }}" class="d-inline">
                                         <button type="submit" class="btn btn-sm btn-danger" title="Negar">
                                             <i class="fas fa-times"></i> Negar
                                         </button>
@@ -82,13 +83,15 @@
                                     <span class="text-muted small">Revisado</span>
                                     
                                     {% if enrollment.status == 'AUTORIZADO' %}
-                                    <form method="POST" action="{{ url_for('process_enrollment', enrollment_id=enrollment.id, action='deny') }}" class="d-inline ms-2">
+                                    {# CORREÇÃO 3: Mudar de Autorizado para Negado #}
+                                    <form method="POST" action="{{ url_for('update_enrollment_status', enrollment_id=enrollment.id, status='NEGADO') }}" class="d-inline ms-2">
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Mudar para Negado">
                                             <i class="fas fa-ban"></i>
                                         </button>
                                     </form>
                                     {% elif enrollment.status == 'NEGADO' %}
-                                    <form method="POST" action="{{ url_for('process_enrollment', enrollment_id=enrollment.id, action='authorize') }}" class="d-inline ms-2">
+                                    {# CORREÇÃO 4: Mudar de Negado para Autorizado #}
+                                    <form method="POST" action="{{ url_for('update_enrollment_status', enrollment_id=enrollment.id, status='AUTORIZADO') }}" class="d-inline ms-2">
                                         <button type="submit" class="btn btn-sm btn-outline-success" title="Mudar para Autorizado">
                                             <i class="fas fa-check"></i>
                                         </button>

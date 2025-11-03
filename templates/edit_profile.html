@@ -1,22 +1,61 @@
 {% extends "base.html" %}
+
 {% block title %}Editar Perfil{% endblock %}
+
 {% block content %}
-<div style="max-width:400px; margin:0 auto;">
-    <h1 class="page-title">Editar Meu Perfil</h1>
-    <div class="card">
-        <form method="POST">
+
+<div class="row justify-content-center pt-5">
+    <div class="col-lg-6 col-md-8">
+        
+        <h1 class="page-title text-center mb-4">
+            <i class="fas fa-user-cog me-2"></i> <span class="highlight-red">//</span> CONFIGURAÇÕES DE PERFIL
+        </h1>
+
+        <div class="card p-4 shadow bg-dark-card border-red">
             
-            <label for="username" class="label">Nome de Usuário:</label>
-            <input type="text" id="username" name="username" class="input" value="{{ current_user.username }}" required>
-            
-            <label for="email" class="label" style="margin-top:10px;">Email:</label>
-            <input type="email" id="email" name="email" class="input" value="{{ current_user.email }}" required>
-            
-            <p class="muted" style="font-size: 0.8rem; margin-top: 15px;">*A alteração de senha deve ser feita através de uma rota separada.</p>
-            
-            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px;">Salvar Alterações</button>
-            <a href="{{ url_for('dashboard') }}" class="btn btn-ghost" style="width:100%; margin-top:10px;">Voltar</a>
-        </form>
+            <form method="POST" action="{{ url_for('edit_profile') }}" enctype="multipart/form-data">
+                
+                <div class="text-center mb-4">
+                    {% set display_image = current_user.image_file if current_user.image_file and current_user.image_file != 'default.jpg' else 'default.jpg' %}
+                    {% set profile_img_url = url_for('static', filename='profile_pics/' + display_image) %}
+                    
+                    <img src="{{ profile_img_url }}" alt="Avatar" class="mb-2 user-profile-lg"
+                         style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid var(--bs-danger);">
+                    <p class="small text-muted">Avatar Atual</p>
+                </div>
+
+                <div class="mb-4">
+                    <label for="picture" class="form-label fw-bold"><i class="fas fa-camera me-1"></i> Alterar Foto de Perfil:</label>
+                    <input type="file" id="picture" name="picture" class="form-control bg-dark text-light border-secondary" accept="image/png, image/jpeg, image/gif">
+                    <div class="form-text text-muted">A foto será nomeada com seu ID. Extensões permitidas: PNG, JPG, GIF.</div>
+                </div>
+                
+                <hr class="my-4 border-secondary">
+                
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-bold"><i class="fas fa-user me-1"></i> Nome de Usuário:</label>
+                    <input type="text" id="username" name="username" class="form-control bg-dark text-light border-secondary" 
+                           value="{{ current_user.username }}" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="email" class="form-label fw-bold"><i class="fas fa-envelope me-1"></i> Email:</label>
+                    <input type="email" id="email" name="email" class="form-control bg-dark text-light border-secondary" 
+                           value="{{ current_user.email }}" required>
+                    <div class="form-text text-muted">O email é usado para login.</div>
+                </div>
+                
+                <div class="d-grid gap-2 mt-4">
+                    <button class="btn btn-red py-2" type="submit">
+                        <i class="fas fa-save me-2"></i> SALVAR ALTERAÇÕES
+                    </button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Voltar ao Painel
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
 {% endblock %}

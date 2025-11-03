@@ -1,34 +1,111 @@
 {% extends "base.html" %}
-{% block title %}Cursos{% endblock %}
+{% block title %}Cursos - Trilha de Conhecimento{% endblock %}
 {% block content %}
-<h1 class="page-title">Nossos Cursos</h1>
-<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;">
-  {% for course in courses %}
-  <div class="card" style="text-decoration:none;">
-    <h2 style="font-weight:800; margin-bottom:6px;">{{ course.title }}</h2>
-    <p class="muted" style="margin-bottom:10px; min-height:60px; overflow:hidden;">{{ course.description }}</p>
 
-    {% set status = user_enrollments.get(course.id, 'NONE') %}
+<div class="py-5">
+    
+    <h1 class="page-title text-center mb-3">
+        TRILHA DE <span class="highlight-red">CONHECIMENTO</span>
+    </h1>
+    <p class="lead text-muted text-center mb-5" style="max-width: 700px; margin: 0 auto;">
+        Escolha seu caminho: de fundamentos básicos a ataques avançados. Nossos cursos são 100% práticos e focados no mercado.
+    </p>
 
-    {% if current_user.is_authenticated %}
-      {% if status == 'PROFESSOR' %}
-        <a href="{{ url_for('manage_course', course_id=course.id) }}" class="btn btn-info" style="width:100%;">Gerenciar Curso</a>
-      {% elif status == 'AUTORIZADO' %}
-        <a href="{{ url_for('watch_course', course_id=course.id) }}" class="btn btn-primary" style="width:100%;">Assistir Curso</a>
-      {% elif status == 'PENDENTE' %}
-         <button class="btn btn-ghost" disabled style="width:100%; color:#d97706; border-color:#d97706;">Inscrição Pendente</button>
-      {% elif status == 'REJEITADO' %}
-         <button class="btn btn-ghost" disabled style="width:100%; color:#ef4444; border-color:#ef4444;">Inscrição Rejeitada</button>
-      {% else %}
-        <a href="{{ url_for('enroll_course', course_id=course.id) }}" class="btn btn-primary" style="width:100%;">Inscrever-se</a>
-      {% endif %}
-    {% else %}
-      <a href="{{ url_for('login') }}" class="btn btn-primary" style="width:100%;">Faça Login</a>
-    {% endif %}
+    <div class="d-flex justify-content-center mb-5">
+        <div class="btn-group" role="group" aria-label="Filtros de Cursos">
+            <button type="button" class="btn btn-primary btn-sm">Todos</button>
+            <button type="button" class="btn btn-outline-red btn-sm">Iniciante</button>
+            <button type="button" class="btn btn-outline-red btn-sm">Intermediário</button>
+            <button type="button" class="btn btn-outline-red btn-sm">Avançado</button>
+        </div>
+    </div>
 
-  </div>
-  {% else %}
-    <p class="muted">Nenhum curso disponível.</p>
-  {% endfor %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+
+        {% for course in courses %}
+        <div class="col">
+            <div class="card h-100 d-flex flex-column">
+                
+                {% set course_image = course.course_image if course.course_image and course.course_image != 'default.png' else 'default_course.jpg' %}
+                <img src="{{ url_for('static', filename='course_images/' + course_image) }}" 
+                     class="card-img-top" 
+                     alt="Capa do Curso: {{ course.title }}"
+                     style="height: 150px; object-fit: cover; border-bottom: 2px solid var(--bs-danger);">
+                <div class="card-body flex-grow-1">
+                    <h5 class="card-title fw-bold">
+                        <i class="fas fa-book highlight-red me-2"></i> {{ course.title }}
+                    </h5>
+                    <p class="text-muted small">
+                        {{ course.description }}
+                    </p>
+                    
+                    {% if course.professor %}
+                    <p class="text-xs text-info mt-3 mb-1">
+                        <i class="fas fa-chalkboard-teacher me-1"></i> Professor: {{ course.professor.username }}
+                    </p>
+                    {% endif %}
+                    
+                    <ul class="list-unstyled small mt-2">
+                        <li class="text-muted mb-1"><i class="fas fa-check highlight-red me-2"></i> Conteúdo Modular</li>
+                        <li class="text-muted mb-1"><i class="fas fa-check highlight-red me-2"></i> Acesso 24/7</li>
+                    </ul>
+                </div>
+                
+                <div class="card-footer bg-transparent border-top-0 d-grid">
+                    
+                   <!---- <span class="badge text-bg-warning mb-2">INTERMEDIÁRIO</span> --->
+                    
+                    
+                    {% set status = user_enrollments.get(course.id, 'NONE') %}
+
+                    {% if current_user.is_authenticated %}
+                        
+                        {% if status == 'AUTORIZADO' %}
+                            <a href="{{ url_for('watch_course', course_id=course.id) }}" class="btn btn-success btn-sm">
+                                <i class="fas fa-play me-1"></i> Acessar Curso
+                            </a>
+                        
+                        {% elif status == 'PENDENTE' %}
+                            <button class="btn btn-warning btn-sm" disabled>
+                                <i class="fas fa-hourglass-half me-1"></i> Inscrição Pendente
+                            </button>
+                            
+                        {% elif status == 'REJEITADO' %}
+                            <a href="{{ url_for('enroll_course', course_id=course.id) }}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-redo me-1"></i> Re-solicitar Inscrição
+                            </a>
+                        
+                        {% elif status == 'PROFESSOR' or current_user.user_type == 'admin' %}
+                            <a href="{{ url_for('manage_course', course_id=course.id) }}" class="btn btn-red btn-sm">
+                                <i class="fas fa-tools me-1"></i> Gerenciar Conteúdo
+                            </a>
+                        
+                        {% else %}
+                            <a href="{{ url_for('enroll_course', course_id=course.id) }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-user-plus me-1"></i> Solicitar Inscrição
+                            </a>
+                        {% endif %}
+
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-lock me-1"></i> Faça Login para Inscrever
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% if not courses %}
+            <div class="col-12">
+                <div class="alert alert-info text-center" role="alert">
+                    <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Nenhum Curso Criado!</h4>
+                    <p>O catálogo está vazio no momento. Volte mais tarde ou contacte o administrador.</p>
+                </div>
+            </div>
+        {% endif %}
+
+    </div> 
 </div>
+
 {% endblock %}

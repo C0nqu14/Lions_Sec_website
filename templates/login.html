@@ -1,15 +1,66 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock %}
+{% block title %}Login - Acesso Administrativo{% endblock %}
 {% block content %}
-<div class="card" style="max-width:520px; margin:2.5rem auto;">
-  <h2 class="card-title">Login</h2>
-  <form method="POST" action="{{ url_for('login') }}" style="display:flex; flex-direction:column; gap:12px;">
-    <label class="label">Email</label>
-    <input class="input" type="email" name="email" required />
-    <label class="label">Senha</label>
-    <input class="input" type="password" name="password" required />
-    <button class="btn btn-primary" type="submit">Entrar</button>
-  </form>
-  <p class="muted" style="text-align:center; margin-top:12px;">Ainda não tem conta? <a class="link" href="{{ url_for('register') }}">Registre-se</a></p>
+
+<div class="row justify-content-center pt-5">
+    <div class="col-lg-6 col-md-8 col-sm-10">
+        
+        <div class="card p-4 border-danger" style="border-width: 2px !important;">
+            
+            <h2 class="page-title text-center mb-4">
+                <span class="highlight-red">//</span> SYSTEM LOGIN
+            </h2>
+            
+            <p class="text-muted text-center mb-4">
+                Por favor, insira suas credenciais. O acesso é monitorado.
+            </p>
+
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="mb-3">
+                    <label for="email" class="form-label text-muted">USER EMAIL:</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0">
+                            <i class="fas fa-user-secret"></i>
+                        </span>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="user@lionssec.io" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label text-muted">PASSWORD:</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0">
+                            <i class="fas fa-key"></i>
+                        </span>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="************" required>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        <input type="checkbox" id="remember" name="remember" class="form-check-input">
+                        <label for="remember" class="form-check-label small text-muted">
+                            Manter conectado
+                        </label>
+                    </div>
+                    <small>
+                        <a href="#" class="highlight-red text-decoration-none small">Esqueceu a Senha?</a>
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                    <span class="scramble-target" data-original-text="ACCESS GRANTED">ACCESS GRANTED</span>
+                </button>
+            </form>
+
+            <p class="text-center small text-muted mt-3">
+                Novo Usuário? 
+                <a href="{{ url_for('register') }}" class="highlight-red text-decoration-none">Crie uma Conta</a>
+            </p>
+
+        </div>
+        
+    </div>
 </div>
+
 {% endblock %}

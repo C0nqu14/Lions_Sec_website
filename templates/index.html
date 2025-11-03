@@ -1,18 +1,75 @@
 {% extends "base.html" %}
-{% block title %}Início{% endblock %}
+{% block title %}Home - Plataforma de Segurança Ofensiva{% endblock %}
 {% block content %}
-<section style="min-height:70vh; display:grid; place-items:center; text-align:center;">
-  <div style="max-width:900px;">
-    <h1 style="font-size: clamp(36px, 6vw, 72px); font-weight:800; line-height:1.02;">
-      <span style="color:#ef4444;">Cibersegurança</span> para o Mundo Real
-    </h1>
-    <p style="color:#9aa0a6; margin-top:14px; font-size:18px;">
-      Cursos práticos, laboratórios CTF e certificações — aprenda o que o mercado exige.
-    </p>
-    <div style="margin-top:22px; display:flex; gap:12px; justify-content:center;">
-      <a class="btn btn-primary" href="{{ url_for('courses') }}">Explorar Cursos</a>
-      <a class="btn btn-ghost" href="{{ url_for('ctfs') }}">Participar de CTFs</a>
+
+<header class="py-5 mb-5">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            
+            <div class="col-lg-7 text-lg-start text-center mb-4 mb-lg-0">
+                <p class="lead highlight-red mb-3 fw-bold">// ACCESS GRANTED</p>
+                <h1 class="hero-title display-3 fw-bolder" style="line-height: 1.2;">
+                    O Seu Próximo Nível em <span class="highlight-red">Cibersegurança</span> Começa Aqui.
+                </h1>
+                <p class="lead text-muted mt-4 mb-5 fs-5" style="max-width: 600px; margin: 0 auto 0 0;">
+                    Da base ao pentester sênior, a LIONS SEC oferece trilhas de aprendizado práticas e desafios reais para transformar você no profissional que o mercado precisa.
+                </p>
+                
+                <div class="d-flex justify-content-lg-start justify-content-center gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3 shadow-lg">COMEÇAR AGORA <i class="fas fa-arrow-right ms-2"></i></a>
+                    <a href="{{ url_for('ctfs') }}" class="btn btn-outline-red btn-lg px-5 py-3">DESAFIOS ATIVOS</a>
+                </div>
+            </div>
+            
+            <div class="col-lg-5 d-flex justify-content-center">
+                <img src="{{ url_for('static', filename='img/a.png') }}" 
+                     alt="Representação de Data Flow e Segurança Profissional" 
+                     style="max-width: 100%; height: auto; border: 1px solid var(--color-border); ">
+            </div>
+
+        </div>
     </div>
-  </div>
+</header>
+
+<section class="py-5">
+    <h2 class="text-center page-title mb-5">TREINAMENTO <span class="highlight-red">COM FOCO</span> NO MERCADO</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        
+        <div class="col">
+            <div class="card h-100 p-4 text-center">
+                <i class="fas fa-server fa-3x mb-4 highlight-red"></i>
+                <h5 class="card-title fw-bold">Infraestrutura Dedicada</h5>
+                <p class="text-muted">Laboratórios isolados e persistentes para a sua prática.</p>
+            </div>
+        </div>
+        
+        <div class="col">
+            <div class="card h-100 p-4 text-center">
+                <i class="fas fa-lock-open fa-3x mb-4 highlight-red"></i>
+                <h5 class="card-title fw-bold">Pentesting Real</h5>
+                <p class="text-muted">Metodologia e técnicas utilizadas em testes de penetração reais.</p>
+            </div>
+        </div>
+        
+        <div class="col">
+            <div class="card h-100 p-4 text-center">
+                <i class="fas fa-chart-line fa-3x mb-4 highlight-red"></i>
+                <h5 class="card-title fw-bold">Progresso Mensurável</h5>
+                <p class="text-muted">Acompanhe seu desempenho e rank em tempo real.</p>
+            </div>
+        </div>
+
+    </div>
 </section>
+
+<section class="py-5 my-5 text-center" style="border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border);">
+    <h2 class="page-title fw-bold mb-3">
+        CTF: Onde a <span class="highlight-red">Teoria</span> Encontra a Prática
+    </h2>
+    <p class="lead text-muted mb-4" style="max-width: 700px; margin: 0 auto;">
+        Mais do que um jogo, é uma avaliação contínua. Suba no ranking, aprenda com a comunidade e ganhe reconhecimento.
+    </p>
+    <a href="{{ url_for('ctfs') }}" class="btn btn-outline-red btn-lg px-5 py-3 mt-3">VER QUADRO DE LÍDERES <i class="fas fa-trophy ms-2"></i></a>
+</section>
+
 {% endblock %}

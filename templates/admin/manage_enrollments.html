@@ -1,46 +1,114 @@
 {% extends "base.html" %}
-{% block title %}Autorizar Inscrições{% endblock %}
-{% block content %}
-<h1 class="page-title">📝 Autorização de Inscrições (Admin)</h1>
 
-<div class="card">
-    <table style="width:100%; border-collapse:collapse; text-align:left;">
-        <thead style="border-bottom:2px solid #22c55e;">
-            <tr style="color:#22c55e;">
-                <th style="padding:8px;">Aluno</th>
-                <th style="padding:8px;">Curso</th>
-                <th style="padding:8px;">Status</th>
-                <th style="padding:8px;">Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for enrollment in enrollments %}
-            <tr style="border-bottom:1px solid rgba(255,255,255,.05);">
-                <td style="padding:8px;">{{ enrollment.student.username }}</td>
-                <td style="padding:8px; font-weight:bold;">{{ enrollment.course.title }}</td>
-                <td style="padding:8px;">
-                    <span style="color:{% if enrollment.status == 'AUTORIZADO' %}#22c55e{% elif enrollment.status == 'PENDENTE' %}#d97706{% else %}#ef4444{% endif %}; font-weight:600;">
-                        {{ enrollment.status|upper }}
-                    </span>
-                </td>
-                <td style="padding:8px;">
-                    {% if enrollment.status == 'PENDENTE' or enrollment.status == 'REJEITADO' %}
-                        <form method="POST" action="{{ url_for('authorize_enrollment', enrollment_id=enrollment.id, action='authorize') }}" style="display:inline; margin-right:5px;">
-                            <button type="submit" class="btn btn-primary btn-sm">Autorizar</button>
-                        </form>
-                    {% endif %}
-                    {% if enrollment.status == 'PENDENTE' or enrollment.status == 'AUTORIZADO' %}
-                        <form method="POST" action="{{ url_for('authorize_enrollment', enrollment_id=enrollment.id, action='reject') }}" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja REJEITAR esta inscrição?')">Rejeitar</button>
-                        </form>
-                    {% endif %}
-                    {% if enrollment.status != 'PENDENTE' and enrollment.status != 'AUTORIZADO' and enrollment.status != 'REJEITADO' %}
-                        <span class="muted">Sem Ação</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% block title %}Gerenciar Inscrições{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center py-5">
+    <div class="col-12 col-xl-10">
+
+        <h1 class="page-title text-center mb-4">
+            <span class="highlight-red">//</span> REVISÃO DE INSCRIÇÕES
+        </h1>
+        <p class="text-muted text-center mb-4 pb-3 border-bottom">
+            Gerencie as solicitações de inscrição de alunos nos cursos.
+        </p>
+        
+        <div class="card p-4 shadow-lg">
+            <h2 class="h5 mb-4 fw-bold text-primary">
+                <i class="fas fa-list-check me-2"></i> Lista de Solicitações (Total: {{ enrollments|length }})
+            </h2>
+
+            {% if not enrollments %}
+            <div class="alert alert-info text-center">
+                Nenhuma solicitação de inscrição encontrada.
+            </div>
+            {% else %}
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Aluno</th>
+                            <th>Curso</th>
+                            <th>Status</th>
+                            <th>Data da Solicitação</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                        <tr class="
+                            {% if enrollment.status == 'PENDENTE' %}table-warning text-dark fw-bold
+                            {% elif enrollment.status == 'AUTORIZADO' %}table-success text-dark
+                            {% elif enrollment.status == 'NEGADO' %}table-danger text-dark
+                            {% endif %}">
+                            
+                            <td>
+                                <span class="text-decoration-none 
+                                    {% if enrollment.status == 'PENDENTE' or enrollment.status == 'NEGADO' %}text-dark{% else %}text-white{% endif %}">
+                                    {{ enrollment.student.username }}
+                                </span>
+                                <div class="small text-muted">({{ enrollment.student.email }})</div>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('manage_course', course_id=enrollment.course.id) }}" class="text-decoration-none 
+                                    {% if enrollment.status == 'PENDENTE' or enrollment.status == 'NEGADO' %}text-dark{% else %}text-white{% endif %}">
+                                    {{ enrollment.course.title }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if enrollment.status == 'PENDENTE' %}bg-danger
+                                    {% elif enrollment.status == 'AUTORIZADO' %}bg-success
+                                    {% else %}bg-secondary
+                                    {% endif %}">
+                                    {{ enrollment.status }}
+                                </span>
+                            </td>
+                            <td>{{ enrollment.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td class="text-center">
+                                {% if enrollment.status == 'PENDENTE' %}
+                                    <form method="POST" action="{{ url_for('process_enrollment', enrollment_id=enrollment.id, action='authorize') }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success me-2" title="Autorizar">
+                                            <i class="fas fa-check"></i> Autorizar
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('process_enrollment', enrollment_id=enrollment.id, action='deny') }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Negar">
+                                            <i class="fas fa-times"></i> Negar
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-muted small">Revisado</span>
+                                    
+                                    {% if enrollment.status == 'AUTORIZADO' %}
+                                    <form method="POST" action="{{ url_for('process_enrollment', enrollment_id=enrollment.id, action='deny') }}" class="d-inline ms-2">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Mudar para Negado">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    </form>
+                                    {% elif enrollment.status == 'NEGADO' %}
+                                    <form method="POST" action="{{ url_for('process_enrollment', enrollment_id=enrollment.id, action='authorize') }}" class="d-inline ms-2">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Mudar para Autorizado">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+            
+            <div class="text-center mt-3">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar para o Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

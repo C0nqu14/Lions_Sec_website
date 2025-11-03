@@ -1,16 +1,55 @@
 {% extends "base.html" %}
 {% block title %}Meus Cursos{% endblock %}
 {% block content %}
-<h1 class="page-title">Meus Cursos</h1>
-<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;">
-  {% for enrollment in enrolled_courses %}
-  <a href="{{ url_for('watch_course', course_id=enrollment.course.id) }}" class="card" style="text-decoration:none;">
-    <h2 style="font-weight:800;">{{ enrollment.course.title }}</h2>
-    <p class="muted" style="margin-top:8px;">{{ enrollment.course.description }}</p>
-    <button class="btn btn-primary" style="margin-top:10px; width:100%;">Assistir</button>
-  </a>
-  {% else %}
-    <p class="muted">Você não está inscrito em nenhum curso.</p>
-  {% endfor %}
+
+<div class="py-5">
+    
+    <h1 class="page-title mb-4">
+        <span class="highlight-red">//</span> MEUS CURSOS AUTORIZADOS
+    </h1>
+    <p class="lead text-muted mb-5">
+        Aqui estão os cursos em que a sua inscrição foi aprovada. Continue seu treinamento de segurança!
+    </p>
+
+    <div class="row g-4">
+        {% if enrolled_courses %}
+            {% for enrollment in enrolled_courses %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 p-4 d-flex flex-column">
+                        
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-book-reader fa-2x highlight-red me-3"></i>
+                            <h5 class="card-title fw-bold m-0">{{ enrollment.course.title }}</h5>
+                        </div>
+                        
+                        <p class="text-muted small mb-4 flex-grow-1">
+                            {{ enrollment.course.description }}
+                        </p>
+                        
+                        <p class="text-xs text-info mb-3">
+                            <i class="fas fa-chalkboard-teacher me-1"></i> Professor: {{ enrollment.course.professor.username }}
+                        </p>
+
+                        <a href="{{ url_for('watch_course', course_id=enrollment.course.id) }}" class="btn btn-red mt-auto">
+                            Acessar Curso <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-warning text-center" role="alert">
+                    <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Nenhum Curso Ativo!</h4>
+                    <p>Você ainda não está autorizado em nenhum curso. Visite o catálogo e solicite sua inscrição.</p>
+                    <hr>
+                    <a href="{{ url_for('courses') }}" class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-globe me-1"></i> Explorar Cursos
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 </div>
+
 {% endblock %}

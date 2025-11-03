@@ -1,22 +1,45 @@
 {% extends "base.html" %}
 {% block title %}Criar Professor{% endblock %}
 {% block content %}
-<div style="max-width:400px; margin:0 auto;">
-    <h1 class="page-title">Criar Conta de Professor</h1>
-    <div class="card">
-        <form method="POST">
-            <label for="username" class="label">Nome de Usuário:</label>
-            <input type="text" id="username" name="username" class="input" required>
+
+<div class="d-flex justify-content-center py-5">
+    <div class="col-12 col-md-8 col-lg-5">
+        <h1 class="page-title text-center mb-4">
+            <span class="highlight-red">//</span> CRIAR CONTA DE PROFESSOR
+        </h1>
+        
+        <div class="card p-4 shadow">
+            <p class="text-muted text-center mb-4">
+                Preencha os dados para registrar um novo usuário com o tipo Professor.
+            </p>
             
-            <label for="email" class="label" style="margin-top:10px;">Email:</label>
-            <input type="email" id="email" name="email" class="input" required>
-            
-            <label for="password" class="label" style="margin-top:10px;">Senha Temporária:</label>
-            <input type="password" id="password" name="password" class="input" required>
-            
-            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px;">Criar Professor</button>
-            <a href="{{ url_for('manage_users') }}" class="btn btn-ghost" style="width:100%; margin-top:10px;">Voltar</a>
-        </form>
+            <form method="POST">
+                
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-bold">Nome de Usuário:</label>
+                    <input type="text" id="username" name="username" class="form-control form-control-dark" required placeholder="Ex: Professor_Seguranca">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-bold">Email:</label>
+                    <input type="email" id="email" name="email" class="form-control form-control-dark" required placeholder="email@dominio.com">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-bold">Senha Temporária:</label>
+                    <input type="password" id="password" name="password" class="form-control form-control-dark" required placeholder="Use uma senha segura e temporária">
+                    <div class="form-text text-muted">O professor poderá alterar esta senha no primeiro login.</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 mb-3">
+                    <i class="fas fa-user-plus me-2"></i> Criar Professor
+                </button>
+                
+                <a href="{{ url_for('manage_users') }}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-arrow-left me-2"></i> Voltar à Gestão de Usuários
+                </a>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

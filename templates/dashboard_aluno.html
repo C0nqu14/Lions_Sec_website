@@ -1,57 +1,144 @@
 {% extends "base.html" %}
 {% block title %}Dashboard Aluno{% endblock %}
 {% block content %}
-<h1 class="page-title">Meu Dashboard de Aluno</h1>
 
-<div class="card" style="margin-bottom: 25px;">
-    <h2 style="font-weight: 800; font-size: 1.5rem; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 10px; margin-bottom: 15px;">
-        Ações Rápidas
-    </h2>
-    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-        
-        <a href="{{ url_for('my_courses') }}" class="card-action-link" style="text-decoration: none; display: block; flex: 1 1 300px; padding: 15px; border: 1px solid #3b82f6; border-radius: 8px; background-color: rgba(59, 130, 246, 0.1);">
-            <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #3b82f6;"></i>
-            <h3 style="font-weight: 600; margin-top: 5px; color: #3b82f6;">Meus Cursos</h3>
-            <p class="muted" style="font-size: 0.9rem;">Acesse os cursos em que está autorizado.</p>
-        </a>
-
-        <a href="{{ url_for('edit_profile') }}" class="card-action-link" style="text-decoration: none; display: block; flex: 1 1 300px; padding: 15px; border: 1px solid #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.1);">
-            <i class="fas fa-user-edit" style="font-size: 2rem; color: #f59e0b;"></i>
-            <h3 style="font-weight: 600; margin-top: 5px; color: #f59e0b;">Editar Perfil</h3>
-            <p class="muted" style="font-size: 0.9rem;">Atualize seu nome e email.</p>
-        </a>
-        
-        <a href="{{ url_for('ctf_ranking') }}" class="card-action-link" style="text-decoration: none; display: block; flex: 1 1 300px; padding: 15px; border: 1px solid #6366f1; border-radius: 8px; background-color: rgba(99, 102, 241, 0.1);">
-            <i class="fas fa-trophy" style="font-size: 2rem; color: #6366f1;"></i>
-            <h3 style="font-weight: 600; margin-top: 5px; color: #6366f1;">Ranking CTF</h3>
-            <p class="muted" style="font-size: 0.9rem;">Veja sua posição e pontos.</p>
-        </a>
-
-    </div>
-</div>
-
-<div class="card" style="margin-top: 25px;">
-    <h2 style="font-weight: 800; font-size: 1.5rem; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 10px; margin-bottom: 15px;">
-    Progresso Geral
-    </h2>
-    <p class="muted" style="margin-bottom: 10px;">Aqui está uma visão geral do seu avanço nos cursos:</p>
+<div class="py-5">
     
-    <div style="background-color: #333; border-radius: 4px; padding: 15px; margin-bottom: 10px;">
-        <p style="font-weight: 600; color: white;">Curso: Introdução (50% Concluído)</p>
-        <div style="height: 10px; background-color: #444; border-radius: 5px; margin-top: 5px;">
-            <div style="width: 50%; height: 100%; background-color: #22c55e; border-radius: 5px;"></div>
+    <h1 class="page-title mb-4">
+        <span class="highlight-red">//</span> CONSOLE DE TREINAMENTO
+    </h1>
+    <p class="lead text-muted mb-5">
+        Bem-vindo(a), <span class="highlight-red">{{ current_user.username | upper }}</span>. Aqui você acompanha seu progresso em cursos e desafios CTF.
+    </p>
+
+    <h2 class="page-title fs-3 mb-4">
+        <span class="highlight-red">>></span> RESUMO DO PROGRESSO
+    </h2>
+    
+    <div class="row g-4 mb-5">
+        
+        <div class="col-lg-4 col-md-6">
+            <a href="{{ url_for('my_courses') }}" class="card-link" style="text-decoration: none;">
+                <div class="card p-4 h-100 card-hover-red">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-graduation-cap fa-3x highlight-red me-4"></i>
+                        <div>
+                            <p class="text-muted mb-0 small">CURSOS AUTORIZADOS</p>
+                            <h3 class="card-title display-6 fw-bold">{{ authorized_courses_count }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <a href="{{ url_for('ctf_ranking') }}" class="card-link" style="text-decoration: none;">
+                <div class="card p-4 h-100 card-hover-red">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-flag-checkered fa-3x highlight-red me-4"></i>
+                        <div>
+                            <p class="text-muted mb-0 small">SCORE CTF TOTAL</p>
+                            <h3 class="card-title display-6 fw-bold">{{ total_ctf_score }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-lg-4 col-md-12">
+            <a href="{{ url_for('ctfs') }}" class="card-link" style="text-decoration: none;">
+                <div class="card p-4 h-100 card-hover-red">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-puzzle-piece fa-3x highlight-red me-4"></i>
+                        <div>
+                            <p class="text-muted mb-0 small">CTFS SOLUCIONADOS</p>
+                            <h3 class="card-title display-6 fw-bold">{{ solved_ctfs_count }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </a>
         </div>
     </div>
     
-    <div style="background-color: #333; border-radius: 4px; padding: 15px; margin-bottom: 10px;">
-        <p style="font-weight: 600; color: white;">Curso: Pentesting Avançado (10% Concluído)</p>
-        <div style="height: 10px; background-color: #444; border-radius: 5px; margin-top: 5px;">
-            <div style="width: 10%; height: 100%; background-color: #3b82f6; border-radius: 5px;"></div>
+    <h2 class="page-title fs-3 mb-4">
+        <span class="highlight-red">>></span> CONTINUAR TREINAMENTO
+    </h2>
+    
+    <div class="row g-4 mb-5">
+        {% if in_progress_courses %}
+            {% for enrollment in in_progress_courses[:3] %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card p-4 h-100">
+                        <h5 class="card-title fw-bold text-truncate">{{ enrollment.course.title }}</h5>
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-chalkboard-teacher me-1"></i> Professor: {{ enrollment.course.professor.username }}
+                        </p>
+                        <p class="text-xs text-secondary mb-3">
+                            Acompanhe o conteúdo deste curso.
+                        </p>
+                        
+                        <a href="{{ url_for('watch_course', course_id=enrollment.course.id) }}" class="btn btn-outline-red btn-sm mt-auto">
+                            Continuar <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+            
+            {% if in_progress_courses|length > 3 %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card p-4 h-100 d-flex align-items-center justify-content-center text-center bg-dark-alt">
+                        <h5 class="fw-bold">Ver Todos</h5>
+                        <p class="text-muted small">Você tem mais cursos ativos.</p>
+                        <a href="{{ url_for('my_courses') }}" class="btn btn-red btn-sm">
+                            Ir para Meus Cursos
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+            
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center" role="alert">
+                    <p class="mb-0"><i class="fas fa-search me-2"></i>Comece explorando os <a href="{{ url_for('courses') }}" class="alert-link highlight-red fw-bold">cursos disponíveis</a>.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <hr style="border-color: var(--color-border);" class="my-5">
+    <h2 class="page-title fs-3 mb-4">
+        <span class="highlight-red">>></span> ACESSO RÁPIDO
+    </h2>
+
+    <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+            <a href="{{ url_for('ctfs') }}" class="card-link" style="text-decoration: none;">
+                <div class="card p-4 h-100 bg-dark-alt">
+                    <i class="fas fa-terminal fa-2x highlight-red mb-3"></i>
+                    <h5 class="card-title fw-bold">Desafios CTF</h5>
+                    <p class="text-muted small mb-0">Participe dos desafios e suba no ranking!</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <a href="{{ url_for('courses') }}" class="card-link" style="text-decoration: none;">
+                <div class="card p-4 h-100 bg-dark-alt">
+                    <i class="fas fa-globe fa-2x highlight-red mb-3"></i>
+                    <h5 class="card-title fw-bold">Catálogo de Cursos</h5>
+                    <p class="text-muted small mb-0">Encontre novos treinamentos e solicite sua inscrição.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <a href="{{ url_for('ctf_ranking') }}" class="card-link" style="text-decoration: none;">
+                <div class="card p-4 h-100 bg-dark-alt">
+                    <i class="fas fa-trophy fa-2x highlight-red mb-3"></i>
+                    <h5 class="card-title fw-bold">Ranking Global</h5>
+                    <p class="text-muted small mb-0">Veja sua posição entre os melhores hackers da plataforma.</p>
+                </div>
+            </a>
         </div>
     </div>
-    
-    <p class="muted" style="font-size: 0.8rem; margin-top: 15px;">*Para um progresso preciso, o sistema precisa rastrear cada vídeo concluído.</p>
 </div>
-
 
 {% endblock %}

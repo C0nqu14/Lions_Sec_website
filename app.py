@@ -5,11 +5,14 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from dotenv import load_dotenv
 from database import db, bcrypt, login_manager
 from flask_login import current_user, login_user, logout_user, login_required
-from sqlalchemy import func, desc, asc 
-from functools import wraps # Importação necessária para decoradores
+from sqlalchemy import func, desc, asc, or_
+from functools import wraps 
+# Importação NECESSÁRIA para manipulação de arquivos
+from werkzeug.utils import secure_filename
 
 # Função de hash SHA256 (mantida para a lógica CTF)
 def sha256(text: str) -> str:
+    """Retorna o hash SHA256 de uma string."""
     return hashlib.sha256(text.encode('utf-8')).hexdigest()
 
 def create_app():
@@ -19,6 +22,18 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    # --- CONFIGURAÇÕES DE UPLOAD DE ARQUIVOS ---
+    app.config['UPLOAD_FOLDER_USER'] = 'static/profile_pics'
+    app.config['UPLOAD_FOLDER_COURSE'] = 'static/course_images'
+    app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+    
+    # Garantir que as pastas de upload existam
+    if not os.path.exists(app.config['UPLOAD_FOLDER_USER']):
+        os.makedirs(app.config['UPLOAD_FOLDER_USER'])
+    if not os.path.exists(app.config['UPLOAD_FOLDER_COURSE']):
+        os.makedirs(app.config['UPLOAD_FOLDER_COURSE'])
+    # ------------------------------------------
+
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
@@ -27,7 +42,7 @@ def create_app():
 
     # Import de modelos após inicialização para evitar circular imports
     with app.app_context():
-        # Certifique-se de que todos os modelos estão importados (necessário para a query de ranking)
+        # Importar todos os modelos aqui para que as rotas possam usá-los sem problemas
         from database.models import User, Course, Video, Module, Enrollment, CTF, CTFScore
 
     @login_manager.user_loader
@@ -35,6 +50,36 @@ def create_app():
         from database.models import User
         return db.session.get(User, int(user_id))
     
+    # --- FUNÇÕES AUXILIARES DE ARQUIVOS (ATUALIZADAS) ---
+    
+    def allowed_file(filename):
+        """Verifica se a extensão do arquivo é permitida."""
+        return '.' in filename and \
+               filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+    def save_profile_picture(form_picture, user_id):
+        """Salva a imagem de perfil e retorna o nome do arquivo, usando o ID do usuário."""
+        user_id_str = str(user_id)
+        _, f_ext = os.path.splitext(form_picture.filename) 
+        # Nome do arquivo: ID_DO_USUARIO.ext
+        picture_fn = user_id_str + f_ext
+        picture_path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER_USER'], picture_fn)
+        
+        # Salva o arquivo
+        form_picture.save(picture_path) 
+        return picture_fn
+        
+    def save_course_picture(form_picture, course_id):
+        """Salva a imagem do curso e retorna o nome do arquivo, usando o ID do curso."""
+        _, f_ext = os.path.splitext(form_picture.filename) 
+        picture_fn = f'course_{course_id}{f_ext}'
+        picture_path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER_COURSE'], picture_fn)
+        
+        form_picture.save(picture_path) 
+        return picture_fn
+        
+    # --------------------------------------
+
     # Funções de Auxílio e Decoradores
     def is_professor_or_admin():
         return current_user.is_authenticated and current_user.user_type in ['professor', 'admin']
@@ -71,27 +116,53 @@ def create_app():
             flash('Login falhou. Verifique suas credenciais.', 'danger')
         return render_template('login.html')
 
+    # Rota de Registro ATUALIZADA para upload de foto
     @app.route('/register', methods=['GET', 'POST'])
     def register():
         from database.models import User
         if current_user.is_authenticated:
             return redirect(url_for('dashboard'))
+        
         if request.method == 'POST':
             username = request.form.get('username')
             email = request.form.get('email')
             password = request.form.get('password')
+            picture_file = request.files.get('picture') # Captura o arquivo
+            
+            # 1. Validação básica de campos obrigatórios
             if not (username and email and password):
-                flash('Preencha todos os campos.', 'warning')
+                flash('Preencha todos os campos obrigatórios.', 'warning')
                 return redirect(url_for('register'))
+                
+            # 2. Validação de existência
             if User.query.filter((User.username==username)|(User.email==email)).first():
-                flash('Usuário ou email já existe.', 'danger')
+                flash('Usuário ou email já existe. Escolha outro.', 'danger')
                 return redirect(url_for('register'))
+                
+            # 3. Criação do Usuário (sem imagem inicial)
             hashed = bcrypt.generate_password_hash(password).decode('utf-8')
-            user = User(username=username, email=email, password=hashed, user_type='aluno')
+            image_filename = 'default.jpg' # Nome do arquivo padrão
+            
+            user = User(username=username, email=email, password=hashed, user_type='aluno', image_file=image_filename)
             db.session.add(user); db.session.commit()
-            flash('Conta criada! Faça login.', 'success')
+            
+            # 4. Processamento da Foto de Perfil
+            if picture_file and picture_file.filename != '':
+                if allowed_file(picture_file.filename):
+                    # Salva a foto usando o ID do usuário recém-criado
+                    new_filename = save_profile_picture(picture_file, user.id) 
+                    user.image_file = new_filename # Atualiza o nome do arquivo no banco
+                    db.session.commit()
+                else:
+                    # O usuário é criado, mas a foto é rejeitada (usa 'default.jpg')
+                    flash('Tipo de arquivo da foto não permitido. Usando avatar padrão.', 'warning')
+
+
+            flash('Conta criada! Agora faça login para iniciar seu treinamento.', 'success')
             return redirect(url_for('login'))
+        
         return render_template('register.html')
+
 
     @app.route('/logout')
     @login_required
@@ -100,7 +171,7 @@ def create_app():
         flash('Você saiu da sessão.', 'info')
         return redirect(url_for('home'))
 
-    # -------- Perfil do Usuário (NOVA ROTA) --------
+    # -------- Perfil do Usuário (ATUALIZADA com nova função de upload) --------
     @app.route('/profile', methods=['GET', 'POST'])
     @login_required
     def edit_profile():
@@ -109,11 +180,23 @@ def create_app():
             username = request.form.get('username')
             email = request.form.get('email')
             
+            # --- Lógica de Upload de Foto de Perfil ---
+            if 'picture' in request.files:
+                picture_file = request.files['picture']
+                # Verifica se o arquivo existe e é permitido
+                if picture_file and allowed_file(picture_file.filename):
+                    # Usa a função atualizada, passando current_user.id
+                    picture_filename = save_profile_picture(picture_file, current_user.id)
+                    current_user.image_file = picture_filename
+                elif picture_file and picture_file.filename != '':
+                    flash('Tipo de arquivo não permitido para a foto de perfil.', 'warning')
+                    return redirect(url_for('edit_profile'))
+            # ------------------------------------------
+            
             if not username or not email:
                 flash('Nome de usuário e email são obrigatórios.', 'warning')
                 return redirect(url_for('edit_profile'))
             
-            # Checar se o novo username/email já existe (excluindo o próprio usuário)
             user_exists = User.query.filter(
                 (User.username == username) | (User.email == email),
                 User.id != current_user.id
@@ -135,12 +218,38 @@ def create_app():
     @app.route('/dashboard')
     @login_required
     def dashboard():
+        from database.models import Enrollment, CTFScore, User, Course, db 
+
+        # Lógica Comum/Aluno: CTF Score e Cursos 
+        total_ctf_score = db.session.query(func.sum(CTFScore.score)).filter_by(user_id=current_user.id).scalar()
+        total_ctf_score = int(total_ctf_score) if total_ctf_score else 0
+
+        authorized_courses_count = Enrollment.query.filter_by(student_id=current_user.id, status='AUTORIZADO').count()
+        solved_ctfs_count = CTFScore.query.filter_by(user_id=current_user.id).count()
+        
+        # Filtra cursos autorizados (Enrollment.status == 'AUTORIZADO') para a lista na dashboard do aluno
+        in_progress_courses = Enrollment.query.filter_by(student_id=current_user.id, status='AUTORIZADO').all()
+
         if current_user.user_type == 'admin':
-            return render_template('dashboard_admin.html')
+            
+            # LÓGICA DE ADMIN: BUSCA ESTATÍSTICAS GLOBAIS COM DADOS REAIS
+            total_users = User.query.count()
+            pending_enrollments = Enrollment.query.filter_by(status='PENDENTE').count()
+            total_courses = Course.query.count()
+
+            return render_template('dashboard_admin.html',
+                                   total_users=total_users,
+                                   pending_enrollments=pending_enrollments,
+                                   total_courses=total_courses)
+                               
         elif current_user.user_type == 'professor':
             return render_template('dashboard_professor.html')
-        else:
-            return render_template('dashboard_aluno.html')
+        else: # Aluno
+            return render_template('dashboard_aluno.html', 
+                                   total_ctf_score=total_ctf_score,
+                                   authorized_courses_count=authorized_courses_count,
+                                   solved_ctfs_count=solved_ctfs_count,
+                                   in_progress_courses=in_progress_courses)
 
     # -------- cursos (ALUNO VIEW) --------
     @app.route('/courses')
@@ -151,16 +260,13 @@ def create_app():
         user_enrollments = {}
         if current_user.is_authenticated:
             enrolled = Enrollment.query.filter_by(student_id=current_user.id).all()
-            enrolled_ids = {e.course_id: e.status for e in enrolled} # Mapeia ID do curso para o status
+            enrolled_ids = {e.course_id: e.status for e in enrolled} 
             
             for course in all_courses:
-                # Se for professor/admin e o curso for dele, permite acesso (PROFESSOR)
                 if course.professor_id == current_user.id and current_user.user_type in ['professor', 'admin']:
                     user_enrollments[course.id] = 'PROFESSOR'
-                # Se estiver inscrito, mostra o status (PENDENTE/AUTORIZADO/REJEITADO)
                 elif course.id in enrolled_ids:
                     user_enrollments[course.id] = enrolled_ids[course.id] 
-                # Se não, mostra NONE (para botão de Inscrição)
                 else:
                     user_enrollments[course.id] = 'NONE'
 
@@ -177,7 +283,6 @@ def create_app():
             flash('Apenas alunos podem solicitar inscrição.', 'warning')
             return redirect(url_for('courses'))
         
-        # Prevenção de Bug: Professor não se inscreve no próprio curso
         if course.professor_id == current_user.id:
             flash('Você é o criador deste curso e não pode se inscrever.', 'warning')
             return redirect(url_for('manage_course', course_id=course.id)) 
@@ -191,10 +296,9 @@ def create_app():
             elif existing_enrollment.status == 'PENDENTE':
                 flash('Sua inscrição está PENDENTE de aprovação do administrador.', 'warning')
                 return redirect(url_for('courses'))
-            # Se for REJEITADO, a lógica abaixo irá sobrescrever para PENDENTE (nova tentativa)
             
-        # Cria-se PENDENTE (ou sobrescreve REJEITADO)
         if existing_enrollment:
+            # Se status for 'NEGADO' (ou outro)
             existing_enrollment.status = 'PENDENTE'
             db.session.commit()
         else:
@@ -216,30 +320,25 @@ def create_app():
         
         is_owner = current_user.user_type == 'admin' or course.professor_id == current_user.id
         
-        # VERIFICAÇÃO DE AUTORIZAÇÃO
         if not is_owner and (not enrollment or enrollment.status != 'AUTORIZADO'):
             flash('Sua inscrição não está AUTORIZADA. Contate o administrador.', 'warning')
             return redirect(url_for('courses'))
         
-        # Módulos são obtidos automaticamente pela relação no modelo Course
-        modules = course.modules 
+        # Garante a ordem correta dos módulos e vídeos
+        modules = course.modules # Já ordenado pelo campo 'order_in_course' no Model
         current_video = None
         
-        # Lógica de determinar o vídeo inicial
         if video_id:
             video_to_watch = Video.query.get(video_id)
-            # Verifica se o vídeo existe e pertence ao curso via módulo
             if video_to_watch and video_to_watch.module and video_to_watch.module.course_id == course.id:
                 current_video = video_to_watch
             else:
                  flash('Vídeo não encontrado ou não pertence a este curso.', 'danger')
         
-        # Se não encontrou o vídeo por ID, tenta o primeiro vídeo do primeiro módulo
+        # Se não houver vídeo específico, tenta carregar o primeiro do primeiro módulo
         if not current_video and modules and modules[0].videos:
              current_video = modules[0].videos[0]
         
-        # TODO: Lógica de atualização de progresso viria aqui
-
         return render_template('watch_video.html', 
                                course=course, 
                                modules=modules,
@@ -261,8 +360,9 @@ def create_app():
     def professor_courses():
         from database.models import Course
         if current_user.user_type == 'professor':
+            # Professor vê apenas os cursos que ele criou
             courses = Course.query.filter_by(professor_id=current_user.id).all()
-        else: # Admin vê todos
+        else: # Admin vê todos os cursos
             courses = Course.query.all()
             
         return render_template('professor_courses.html', courses=courses) 
@@ -283,12 +383,12 @@ def create_app():
             db.session.add(new_course); db.session.commit()
             
             flash('Curso criado! Adicione módulos e vídeos em seguida.', 'success')
-            # Redireciona para o novo painel de gestão modular
             return redirect(url_for('manage_course', course_id=new_course.id))
             
         return render_template('create_course.html')
 
 
+    # Rota ATUALIZADA com Upload de Imagem de Curso
     @app.route('/course/<int:course_id>/edit', methods=['GET', 'POST'])
     @professor_or_admin_required
     def edit_course(course_id):
@@ -299,6 +399,18 @@ def create_app():
             return redirect(url_for('dashboard'))
             
         if request.method == 'POST':
+            
+            # --- Lógica de Upload de Foto de Curso ---
+            if 'course_image' in request.files:
+                picture_file = request.files['course_image']
+                if picture_file and allowed_file(picture_file.filename): 
+                    picture_filename = save_course_picture(picture_file, course_id)
+                    course.course_image = picture_filename
+                elif picture_file and picture_file.filename != '':
+                    flash('Tipo de arquivo não permitido para a imagem do curso.', 'warning')
+                    return redirect(url_for('edit_course', course_id=course.id))
+            # ----------------------------------------
+
             course.title = request.form.get('title')
             course.description = request.form.get('description')
             db.session.commit()
@@ -317,7 +429,7 @@ def create_app():
             return redirect(url_for('dashboard'))
             
         try:
-            # O CASCADE deve tratar módulos e vídeos, mas deletamos o curso
+            # Devido à relação 'cascade', módulos e vídeos são deletados automaticamente
             db.session.delete(course); db.session.commit()
             flash('Curso deletado com sucesso (Módulos e Vídeos associados também foram apagados)!', 'success')
         except Exception as e:
@@ -336,7 +448,6 @@ def create_app():
             flash('Sem permissão para este curso.', 'danger')
             return redirect(url_for('dashboard'))
             
-        # Os módulos são carregados automaticamente (ordenados pela coluna 'order_in_course')
         return render_template('manage_course.html', course=course) 
 
     @app.route('/course/<int:course_id>/add_module', methods=['POST'])
@@ -364,7 +475,6 @@ def create_app():
         return redirect(url_for('manage_course', course_id=course_id))
 
 
-    # ROTA DE EDIÇÃO DE MÓDULO
     @app.route('/module/<int:module_id>/edit', methods=['GET', 'POST'])
     @professor_or_admin_required
     def edit_module(module_id):
@@ -390,7 +500,6 @@ def create_app():
 
         return render_template('edit_module.html', course=course, module=module)
 
-    # ROTA DE DELEÇÃO DE MÓDULO
     @app.route('/module/delete/<int:module_id>', methods=['POST'])
     @professor_or_admin_required
     def delete_module(module_id):
@@ -403,7 +512,7 @@ def create_app():
             return redirect(url_for('dashboard'))
         
         try:
-            # O CASCADE deve tratar os vídeos, mas deletamos o módulo
+            # Vídeos associados são deletados automaticamente
             db.session.delete(module); db.session.commit()
             flash(f'Módulo "{module.title}" deletado com sucesso.', 'success')
         except Exception as e:
@@ -413,6 +522,7 @@ def create_app():
         return redirect(url_for('manage_course', course_id=course.id))
 
 
+    # Rota ATUALIZADA para incluir a descrição do vídeo
     @app.route('/module/<int:module_id>/manage_videos', methods=['GET', 'POST'])
     @professor_or_admin_required
     def manage_videos(module_id):
@@ -424,17 +534,23 @@ def create_app():
             flash('Sem permissão para este módulo.', 'danger')
             return redirect(url_for('dashboard'))
 
-        # Lógica de POST (Adicionar Novo Vídeo)
         if request.method == 'POST':
             video_title = request.form.get('video_title')
             video_url = request.form.get('video_url')
+            video_description = request.form.get('video_description') # NOVO: Captura a descrição
             try:
                 video_order = int(request.form.get('video_order'))
             except (ValueError, TypeError):
                 video_order = 0
             
             if video_title and video_url:
-                v = Video(title=video_title, video_url=video_url, order_in_course=video_order, module_id=module.id)
+                v = Video(
+                    title=video_title, 
+                    video_url=video_url, 
+                    description=video_description, # NOVO: Adicionado
+                    order_in_course=video_order, 
+                    module_id=module.id
+                )
                 db.session.add(v); db.session.commit()
                 flash('Vídeo adicionado!', 'success')
             else:
@@ -447,7 +563,6 @@ def create_app():
         return render_template('manage_videos.html', course=course, module=module, videos=videos)
         
 
-    # ROTA DE EDIÇÃO DE VÍDEO
     @app.route('/video/<int:video_id>/edit', methods=['GET', 'POST'])
     @professor_or_admin_required
     def edit_video(video_id):
@@ -463,6 +578,7 @@ def create_app():
         if request.method == 'POST':
             video.title = request.form.get('video_title')
             video.video_url = request.form.get('video_url')
+            video.description = request.form.get('video_description') # NOVO: Captura a descrição na edição
             try:
                 video.order_in_course = int(request.form.get('video_order'))
             except (ValueError, TypeError):
@@ -475,7 +591,6 @@ def create_app():
 
         return render_template('edit_video.html', course=course, module=module, video=video)
 
-    # ROTA DE DELEÇÃO DE VÍDEO
     @app.route('/video/delete/<int:video_id>', methods=['POST'])
     @professor_or_admin_required
     def delete_video(video_id):
@@ -497,7 +612,54 @@ def create_app():
             
         return redirect(url_for('manage_videos', module_id=module.id))
 
-    # -------- CTFs --------
+    # --- ROTAS DE ADMIN/PROFESSOR (Gestão de CTF) ---
+
+    @app.route('/ctfs/manage/<int:ctf_id>', methods=['GET', 'POST'])
+    @professor_or_admin_required
+    def manage_ctf(ctf_id):
+        from database.models import CTF
+        ctf = CTF.query.get_or_404(ctf_id)
+        
+        if request.method == 'POST':
+            ctf.title = request.form.get('title')
+            ctf.description = request.form.get('description')
+            ctf.difficulty = request.form.get('difficulty')
+            
+            try:
+                ctf.points = int(request.form.get('points') or 0)
+            except (ValueError, TypeError):
+                flash('Pontos devem ser um número válido.', 'warning')
+                return redirect(url_for('manage_ctf', ctf_id=ctf.id))
+                
+            new_flag = request.form.get('flag')
+            if new_flag:
+                # Atualiza a flag (armazena o hash da nova flag)
+                ctf.set_flag(new_flag)
+                flash('Flag atualizada (com hash)!', 'success')
+
+            db.session.commit()
+            flash('Desafio CTF atualizado!', 'success')
+            return redirect(url_for('ctfs'))
+
+        return render_template('manage_ctf.html', ctf=ctf)
+        
+    @app.route('/ctfs/delete/<int:ctf_id>', methods=['POST'])
+    @professor_or_admin_required
+    def delete_ctf(ctf_id):
+        from database.models import CTF
+        ctf = CTF.query.get_or_404(ctf_id)
+        
+        try:
+            # CTFScore associados serão deletados automaticamente via cascade (se configurado)
+            db.session.delete(ctf); db.session.commit()
+            flash(f'Desafio "{ctf.title}" deletado com sucesso.', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erro ao deletar o CTF: {e}', 'danger')
+            
+        return redirect(url_for('ctfs'))
+        
+    # -------- CTFs (VISUALIZAÇÃO DO ALUNO) --------
     @app.route('/ctfs')
     @login_required
     def ctfs():
@@ -528,132 +690,90 @@ def create_app():
     def ctf_challenge(ctf_id):
         from database.models import CTF, CTFScore
         challenge = CTF.query.get_or_404(ctf_id)
+        
+        # Verifica se o usuário já resolveu
+        user_solved = CTFScore.query.filter_by(user_id=current_user.id, ctf_id=challenge.id).first()
+        
         if request.method == 'POST':
             user_flag = request.form.get('flag', '')
-            if challenge.check_flag(user_flag):
-                existing_score = CTFScore.query.filter_by(user_id=current_user.id, ctf_id=challenge.id).first()
-                if not existing_score:
-                    new_score = CTFScore(user_id=current_user.id, ctf_id=challenge.id, score=challenge.points)
-                    db.session.add(new_score); db.session.commit()
-                    flash(f'Flag correta! Você ganhou {challenge.points} pontos.', 'success')
-                else:
-                    flash('Você já resolveu este desafio.', 'info')
+            if user_solved:
+                flash('Você já resolveu este desafio.', 'info')
+            elif challenge.check_flag(user_flag):
+                new_score = CTFScore(user_id=current_user.id, ctf_id=challenge.id, score=challenge.points)
+                db.session.add(new_score); db.session.commit()
+                flash(f'Flag correta! Você ganhou {challenge.points} pontos.', 'success')
             else:
                 flash('Flag incorreta. Tente novamente.', 'danger')
             return redirect(url_for('ctf_challenge', ctf_id=ctf_id))
-        return render_template('ctf_challenge.html', challenge=challenge)
-
         
+        is_manager = current_user.is_authenticated and current_user.user_type in ['professor', 'admin']
+        
+        return render_template('ctf_challenge.html', 
+                               challenge=challenge, 
+                               user_solved=user_solved,
+                               is_manager=is_manager)
+
+
     @app.route('/ctfs/ranking')
     @login_required
     def ctf_ranking():
         from database.models import CTFScore, User, db
         
+        # MODIFICAÇÃO PARA INCLUIR IMAGEM DO USUÁRIO
         ranking_data = db.session.query(
-            User.username,
+            User, # Seleciona o objeto User completo
             func.sum(CTFScore.score).label('total_score')
-        ).join(CTFScore, User.id == CTFScore.user_id).group_by(User.id, User.username).order_by(desc('total_score')).all()
+        ).join(CTFScore, User.id == CTFScore.user_id).group_by(User.id).order_by(desc('total_score')).all()
         
-        ranking = [{'username': r.username, 'total_score': int(r.total_score)} for r in ranking_data]
+        # Mapeia os dados para o formato esperado pelo template
+        ranking = []
+        for user_obj, total_score in ranking_data:
+            ranking.append({
+                'username': user_obj.username,
+                'total_score': int(total_score),
+                'image_file': user_obj.image_file # Adiciona a imagem de perfil
+            })
         
         return render_template('ctf_ranking.html', ranking=ranking)
 
 
     # -------- Rotas de ADMIN (Gestão de Utilizadores e Autorização) --------
-
-    @app.route('/admin/users')
-    @login_required
-    def manage_users():
-        from database.models import User
-        if current_user.user_type != 'admin':
-            flash('Sem permissão de administrador.', 'danger')
-            return redirect(url_for('dashboard'))
-        
-        all_users = User.query.filter(User.id != current_user.id).all() # Não lista o próprio admin
-        return render_template('admin/manage_users.html', users=all_users)
-
-    @app.route('/admin/user/<int:user_id>/delete', methods=['POST'])
-    @login_required
-    def delete_user(user_id):
-        from database.models import User
-        if current_user.user_type != 'admin':
-            flash('Sem permissão de administrador.', 'danger')
-            return redirect(url_for('dashboard'))
-
-        user = User.query.get_or_404(user_id)
-        if user.user_type == 'admin':
-            flash('Não é possível deletar outro administrador.', 'danger')
-        else:
-            db.session.delete(user); db.session.commit()
-            flash(f'Usuário {user.username} deletado.', 'success')
-            
-        return redirect(url_for('manage_users'))
-
-    @app.route('/admin/create_professor', methods=['GET', 'POST'])
-    @login_required
-    def create_professor():
-        from database.models import User
-        if current_user.user_type != 'admin':
-            flash('Sem permissão de administrador.', 'danger')
-            return redirect(url_for('dashboard'))
-            
-        if request.method == 'POST':
-            username = request.form.get('username')
-            email = request.form.get('email')
-            password = request.form.get('password')
-            
-            if User.query.filter((User.username==username)|(User.email==email)).first():
-                flash('Usuário ou email já existe.', 'danger')
-                return render_template('admin/create_professor.html')
-
-            hashed = bcrypt.generate_password_hash(password).decode('utf-8')
-            professor = User(username=username, email=email, password=hashed, user_type='professor')
-            db.session.add(professor); db.session.commit()
-            flash(f'Professor {username} criado com sucesso!', 'success')
-            return redirect(url_for('manage_users'))
-
-        return render_template('admin/create_professor.html')
-        
-
+    
     @app.route('/admin/enrollments')
     @login_required
     def manage_enrollments():
-        from database.models import Enrollment
-        if current_user.user_type != 'admin':
-            flash('Sem permissão de administrador.', 'danger')
-            return redirect(url_for('dashboard'))
+        from database.models import Enrollment, db
         
-        # Obter todas as pendentes e autorizadas para melhor gestão
-        enrollments = Enrollment.query.order_by(asc(Enrollment.status)).all() 
+        if current_user.user_type != 'admin':
+            flash('Acesso não autorizado. Você precisa ser um Administrador.', 'danger')
+            return redirect(url_for('dashboard'))
+            
+        # Busca todas as inscrições, ordenando para colocar os PENDENTES no topo
+        enrollments = Enrollment.query.order_by(
+            asc(Enrollment.status != 'PENDENTE'),  # Inverte a ordem para PENDENTE vir primeiro
+            desc(Enrollment.timestamp)
+        ).all()
+        
         return render_template('admin/manage_enrollments.html', enrollments=enrollments)
 
-    @app.route('/admin/enrollment/<int:enrollment_id>/<action>', methods=['POST'])
+    @app.route('/admin/enrollments/<int:enrollment_id>/<status>', methods=['POST'])
     @login_required
-    def authorize_enrollment(enrollment_id, action):
-        from database.models import Enrollment
-        if current_user.user_type != 'admin':
-            flash('Sem permissão de administrador.', 'danger')
-            return redirect(url_for('dashboard'))
+    def update_enrollment_status(enrollment_id, status):
+        from database.models import Enrollment, db
         
+        if current_user.user_type != 'admin':
+            flash('Acesso não autorizado.', 'danger')
+            return redirect(url_for('dashboard'))
+            
         enrollment = Enrollment.query.get_or_404(enrollment_id)
         
-        if action == 'authorize':
-            enrollment.status = 'AUTORIZADO'
-            flash(f'Inscrição de {enrollment.student.username} no curso {enrollment.course.title} AUTORIZADA.', 'success')
-        elif action == 'reject':
-            enrollment.status = 'REJEITADO'
-            flash(f'Inscrição de {enrollment.student.username} no curso {enrollment.course.title} REJEITADA.', 'info')
-        
-        db.session.commit()
+        if status in ['AUTORIZADO', 'NEGADO']:
+            enrollment.status = status
+            db.session.commit()
+            flash(f'Inscrição de {enrollment.student.username} no curso {enrollment.course.title} foi {status}.', 'success')
+        else:
+            flash('Status inválido.', 'danger')
+            
         return redirect(url_for('manage_enrollments'))
         
     return app
-
-# Para quick dev run
-if __name__ == "__main__":
-    app = create_app()
-    with app.app_context():
-        # CUIDADO: Este comando cria a DB se não existir.
-        # Ele só funciona se database.py e models.py estiverem definidos corretamente.
-        db.create_all() 
-    app.run(debug=True)

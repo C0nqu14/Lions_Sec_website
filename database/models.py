@@ -2,11 +2,7 @@ from datetime import datetime
 import hashlib
 from flask_login import UserMixin
 from . import db
-from sqlalchemy.dialects.postgresql import JSON  # Adicionar se estiver a usar PostgreSQL, mas para SQLite manteremos Text/String
-
-# Função para inicializar o campo JSON/Dicionário para progresso
-def default_progress_data():
-    return {}
+# from sqlalchemy.dialects.postgresql import JSON  # Manter se usar BD moderna, senão usar Text
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -14,6 +10,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     user_type = db.Column(db.String(20), nullable=False, default='aluno')  # aluno, professor, admin
+    
+    # NOVO: Caminho da imagem de perfil (avatar)
+    image_file = db.Column(db.String(20), nullable=False, default='default_hacker.png')
 
     courses_taught = db.relationship('Course', backref='professor', lazy=True, cascade="all, delete")
     enrolled_courses = db.relationship('Enrollment', backref='student', lazy=True, cascade="all, delete")
@@ -34,8 +33,10 @@ class Course(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     professor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    # NOVO: Caminho da imagem do curso
+    course_image = db.Column(db.String(40), nullable=False, default='default_course.png')
 
-    # NOVO: Relação com Módulos
     modules = db.relationship('Module', backref='course', lazy=True, order_by='Module.order_in_course', cascade="all, delete-orphan")
     enrollments = db.relationship('Enrollment', backref='course', lazy=True, cascade="all, delete-orphan")
 
@@ -43,14 +44,13 @@ class Course(db.Model):
         return f'<Course {self.title}>'
 
 
-# NOVO MODELO: Module
+# NOVO MODELO: Module (Sem alterações)
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     order_in_course = db.Column(db.Integer, nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
     
-    # Relação com Vídeos (Module é o pai)
     videos = db.relationship('Video', backref='module', lazy=True, order_by='Video.order_in_course', cascade="all, delete-orphan")
 
     def __repr__(self):
@@ -61,9 +61,12 @@ class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     video_url = db.Column(db.String(300), nullable=False)
-    order_in_course = db.Column(db.Integer, nullable=False)
-    # ALTERADO: Chave estrangeira aponta para o Module
+    # CORREÇÃO: O nome da coluna é 'order_in_course'
+    order_in_course = db.Column(db.Integer, nullable=False) 
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'), nullable=False)
+    
+    # NOVO: Campo de descrição do vídeo
+    description = db.Column(db.Text, nullable=True) 
 
     def __repr__(self):
         return f'<Video {self.title}>'
@@ -77,16 +80,10 @@ class Enrollment(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
     
-    # NOVO CAMPO: Status de Autorização (PENDENTE, AUTORIZADO, REJEITADO)
     status = db.Column(db.String(20), nullable=False, default='PENDENTE')
-    
-    # NOVO CAMPO: Progresso de Vídeos Vistos ({video_id: True/False})
-    # Para SQLite/Flask-SQLAlchemy, o tipo String pode ser usado para armazenar JSON serializado (str)
-    # Para ser profissional, use o tipo JSON se estiver a usar uma BD moderna. Aqui, usamos String/Text.
     progress_data = db.Column(db.Text, default='{}') 
     progress_percent = db.Column(db.Integer, default=0)
-    
-    last_video_watched = db.Column(db.Integer, nullable=True)
+    last_video_watched = db.Column(db.Integer, nullable=True) # ID do último vídeo visto
 
 
 class CTF(db.Model):
@@ -96,6 +93,10 @@ class CTF(db.Model):
     description = db.Column(db.Text, nullable=False)
     flag_hash = db.Column(db.String(64), nullable=False)  # SHA-256 hex
     points = db.Column(db.Integer, nullable=False)
+    
+    # NOVO: Campo para controlar quem criou (opcional, para futura expansão)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) 
+    creator = db.relationship('User', backref='ctf_created')
 
     scores = db.relationship('CTFScore', backref='ctf', lazy=True, cascade="all, delete-orphan")
 
@@ -103,6 +104,7 @@ class CTF(db.Model):
         self.flag_hash = hashlib.sha256(flag.encode('utf-8')).hexdigest()
 
     def check_flag(self, attempt: str) -> bool:
+        # Nota: O attempt deve ser a flag em texto simples, não o hash
         return hashlib.sha256(attempt.encode('utf-8')).hexdigest() == self.flag_hash
 
     def __repr__(self):
@@ -115,3 +117,5 @@ class CTFScore(db.Model):
     ctf_id = db.Column(db.Integer, db.ForeignKey('ctf.id'), nullable=False)
     score = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now)
+
+# --- Fim de models.py ---

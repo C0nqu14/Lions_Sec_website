@@ -1,14 +1,59 @@
 {% extends "base.html" %}
-{% block title %}Criar Curso{% endblock %}
+
+{% block title %}Criar Novo Curso{% endblock %}
+
 {% block content %}
-<div class="card" style="max-width:720px; margin:2rem auto;">
-  <h2 class="card-title">Criar Novo Curso</h2>
-  <form method="POST" action="{{ url_for('create_course') }}" style="display:flex; flex-direction:column; gap:12px;">
-    <label class="label">Título do Curso</label>
-    <input class="input" name="title" required />
-    <label class="label">Descrição</label>
-    <textarea class="input" name="description" rows="6" required></textarea>
-    <button class="btn btn-primary" type="submit">Criar Curso</button>
-  </form>
+<div class="d-flex justify-content-center py-5">
+    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+
+        <h1 class="page-title text-center mb-4">
+            <span class="highlight-red">//</span> NOVO CURSO
+        </h1>
+        
+        <div class="card p-4 shadow-lg">
+            <h2 class="h4 mb-4 fw-bold text-primary border-bottom pb-2">
+                <i class="fas fa-plus-circle me-2"></i> Adicionar Curso à Plataforma
+            </h2>
+
+            <form method="POST" action="{{ url_for('create_course') }}" class="row g-3">
+                
+                <div class="col-12">
+                    <label for="title" class="form-label small text-muted">Título do Curso</label>
+                    <input 
+                        type="text" 
+                        id="title" 
+                        name="title" 
+                        required 
+                        class="form-control form-control-dark" 
+                        placeholder="Ex: Hacking Ético Profissional"
+                    >
+                </div>
+                
+                <div class="col-12">
+                    <label for="description" class="form-label small text-muted">Descrição Detalhada do Curso</label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        rows="6" 
+                        required 
+                        class="form-control form-control-dark"
+                        placeholder="Descreva os objetivos, público-alvo e conteúdo principal do curso."
+                    ></textarea>
+                </div>
+                
+                <div class="col-12 mt-4">
+                    <button class="btn btn-primary w-100" type="submit">
+                        <i class="fas fa-save me-2"></i> Criar e Começar a Gerenciar
+                    </button>
+                </div>
+            </form>
+            
+            <div class="text-center mt-3">
+                <a href="{{ url_for('professor_courses') }}" class="text-muted text-decoration-none small">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar para Meus Cursos
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

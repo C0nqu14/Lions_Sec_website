@@ -1,12 +1,103 @@
 {% extends "base.html" %}
-{% block title %}Painel do Professor{% endblock %}
+{% block title %}Dashboard Professor{% endblock %}
 {% block content %}
-<div class="card">
-  <h1 class="card-title">Painel do Professor</h1>
-  <p class="muted">Olá, Prof. {{ current_user.username }}. Gerencie seus cursos aqui.</p>
-  <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:12px;">
-    <a href="{{ url_for('create_course') }}" class="card"><h3 style="font-weight:800;">Criar Novo Curso</h3></a>
-    <a href="{{ url_for('professor_courses') }}" class="card"><h3 style="font-weight:800;">Meus Cursos</h3></a>
-  </div>
+
+<div class="py-5">
+    
+    <h1 class="page-title mb-4">
+        <span class="highlight-green">//</span> PAINEL DE CONTROLE DOCENTE
+    </h1>
+    <p class="lead text-muted mb-5">
+        Bem-vindo(a), <span class="highlight-green">{{ current_user.username | upper }}</span>. Suas permissões são {{ current_user.user_type | upper }}.
+    </p>
+
+    <h2 class="page-title fs-3 mb-4">
+        <span class="highlight-green">>></span> GESTÃO DE CURSOS
+    </h2>
+    
+    <div class="row g-4 mb-5">
+        
+        <div class="col-lg-6 col-md-6">
+            <div class="card p-4 h-100">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-book-reader fa-3x highlight-green me-4"></i>
+                    <div>
+                        <h5 class="card-title fw-bold">Meus Cursos</h5>
+                        <p class="text-muted mb-3 small">Edite módulos, adicione vídeos e visualize o progresso do aluno nos seus cursos.</p>
+                        <a href="{{ url_for('professor_courses') }}" class="btn btn-outline-green btn-sm">Gerir Conteúdo <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-md-6">
+            <div class="card p-4 h-100">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-plus-circle fa-3x highlight-green me-4"></i>
+                    <div>
+                        <h5 class="card-title fw-bold">Criar Novo Curso</h5>
+                        <p class="text-muted mb-3 small">Comece um novo curso do zero com módulos, vídeos e desafios CTF.</p>
+                        <a href="{{ url_for('create_course') }}" class="btn btn-primary btn-sm">Criar Curso <i class="fas fa-pencil-alt ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h2 class="page-title fs-3 mb-4">
+        <span class="highlight-green">>></span> GESTÃO CTF / RANKING
+    </h2>
+    
+    <div class="row g-4 mb-5">
+        
+        <div class="col-lg-6 col-md-6">
+            <div class="card p-4 h-100">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-flag fa-3x highlight-green me-4"></i>
+                    <div>
+                        <h5 class="card-title fw-bold">Criar Desafio CTF</h5>
+                        <p class="text-muted mb-3 small">Publique um novo desafio para a comunidade de alunos.</p>
+                        <a href="{{ url_for('create_ctf') }}" class="btn btn-outline-green btn-sm">Novo CTF <i class="fas fa-code ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-md-6">
+            <div class="card p-4 h-100">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-list-ol fa-3x highlight-green me-4"></i>
+                    <div>
+                        <h5 class="card-title fw-bold">Ranking de Alunos</h5>
+                        <p class="text-muted mb-3 small">Visualize a pontuação e a posição dos alunos nos desafios CTF.</p>
+                        <a href="{{ url_for('ctf_ranking') }}" class="btn btn-outline-green btn-sm">Ver Ranking <i class="fas fa-trophy ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if current_user.user_type == 'admin' %}
+        <hr style="border-color: var(--color-border);" class="my-5">
+        <h2 class="page-title fs-3 mb-4">
+            <span class="highlight-red">>></span> FERRAMENTAS DE ADMIN
+        </h2>
+        <div class="row g-4">
+             <div class="col-lg-6 col-md-6">
+                <div class="card p-4 h-100">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-users-cog fa-3x highlight-red me-4"></i>
+                        <div>
+                            <h5 class="card-title fw-bold">Gestão de Inscrições</h5>
+                            <p class="text-muted mb-3 small">Autorize ou rejeite pedidos de inscrição de alunos nos cursos.</p>
+                            <a href="{{ url_for('manage_enrollments') }}" class="btn btn-outline-red btn-sm">Ver Pendentes <i class="fas fa-user-check ms-1"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
 </div>
+
 {% endblock %}

@@ -1,16 +1,92 @@
 {% extends "base.html" %}
-{% block title %}Registrar{% endblock %}
+{% block title %}Registro - Iniciar Treinamento{% endblock %}
 {% block content %}
-<div class="card" style="max-width:520px; margin:2.5rem auto;">
-  <h2 class="card-title">Criar Conta</h2>
-  <form method="POST" action="{{ url_for('register') }}" style="display:flex; flex-direction:column; gap:12px;">
-    <label class="label">Nome de Usuário</label>
-    <input class="input" type="text" name="username" required />
-    <label class="label">Email</label>
-    <input class="input" type="email" name="email" required />
-    <label class="label">Senha</label>
-    <input class="input" type="password" name="password" required />
-    <button class="btn btn-primary" type="submit">Registrar</button>
-  </form>
+
+<div class="row justify-content-center pt-5">
+    <div class="col-lg-6 col-md-8 col-sm-10">
+        
+        <div class="card p-4 border-danger" style="border-width: 2px !important;">
+            
+            <h2 class="page-title text-center mb-4">
+                <span class="highlight-red">//</span> ACCESS REQUEST
+            </h2>
+            
+            <p class="text-muted text-center mb-4">
+                Preencha os campos para iniciar sua jornada.
+            </p>
+
+            <!-- 🚨 ALTERADO: Adicionado enctype="multipart/form-data" para permitir upload de arquivos -->
+            <form method="POST" action="{{ url_for('register') }}" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="username" class="form-label text-muted">USERNAME:</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0" style="color: var(--color-brand-action); border-color: var(--color-border);">
+                            <i class="fas fa-terminal"></i>
+                        </span>
+                        <input type="text" id="username" name="username" class="form-control" placeholder="hacker_007" required 
+                               style="background: var(--color-input-bg); color: var(--color-text-primary); border-color: var(--color-border);">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label text-muted">USER EMAIL:</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0" style="color: var(--color-brand-action); border-color: var(--color-border);">
+                            <i class="fas fa-at"></i>
+                        </span>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="user@lionssec.io" required 
+                               style="background: var(--color-input-bg); color: var(--color-text-primary); border-color: var(--color-border);">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label text-muted">PASSWORD:</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0" style="color: var(--color-brand-action); border-color: var(--color-border);">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="************" required 
+                               style="background: var(--color-input-bg); color: var(--color-text-primary); border-color: var(--color-border);">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="confirm_password" class="form-label text-muted">CONFIRM PASSWORD:</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0" style="color: var(--color-brand-action); border-color: var(--color-border);">
+                            <i class="fas fa-lock-open"></i>
+                        </span>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="************" required 
+                               style="background: var(--color-input-bg); color: var(--color-text-primary); border-color: var(--color-border);">
+                    </div>
+                </div>
+
+                <!-- ➕ NOVO CAMPO: Upload de Imagem de Perfil -->
+                <div class="mb-4 p-3 border rounded" style="border-color: var(--color-border); background-color: rgba(var(--color-input-bg-rgb), 0.5);">
+                    <label for="picture" class="form-label text-muted">
+                        <i class="fas fa-camera me-1"></i> FOTO DE PERFIL (Opcional):
+                    </label>
+                    <input type="file" id="picture" name="picture" class="form-control" accept="image/png, image/jpeg, image/gif"
+                           style="background: var(--color-input-bg); color: var(--color-text-primary); border-color: var(--color-border);">
+                    <div class="form-text text-muted small mt-2">
+                        Formatos aceitos: JPG, PNG, GIF. Opcional.
+                    </div>
+                </div>
+                <!-- FIM DO NOVO CAMPO -->
+                
+                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                    <span class="scramble-target" data-original-text="REQUEST ACCESS">REQUEST ACCESS</span>
+                </button>
+            </form>
+
+            <p class="text-center small text-muted mt-3">
+                Já tem uma conta? 
+                <a href="{{ url_for('login') }}" class="highlight-red text-decoration-none">Fazer Login</a>
+            </p>
+
+        </div>
+        
+    </div>
 </div>
+
 {% endblock %}

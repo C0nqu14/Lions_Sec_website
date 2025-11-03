@@ -1,19 +1,92 @@
 {% extends "base.html" %}
+
 {% block title %}Desafios CTF{% endblock %}
+
 {% block content %}
-<h1 class="page-title">Desafios Capture The Flag</h1>
-<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;">
-  {% for challenge in challenges %}
-  <a href="{{ url_for('ctf_challenge', ctf_id=challenge.id) }}" class="card" style="text-decoration:none;">
-    <h2 style="font-weight:800;">{{ challenge.title }}</h2>
-    <p class="muted">{{ challenge.description }}</p>
-    <div style="margin-top:8px;">
-      <span class="tag">Dificuldade: {{ challenge.difficulty }}</span>
-      <span class="tag" style="margin-left:8px;">Pontos: {{ challenge.points }}</span>
+<div class="d-flex justify-content-center py-5">
+    <div class="col-12 col-xl-10">
+
+        <h1 class="page-title text-center mb-2">
+            <span class="highlight-red">//</span> DESAFIOS CAPTURE THE FLAG
+        </h1>
+        <p class="text-muted text-center mb-4 pb-3 border-bottom">
+            Teste suas habilidades de cibersegurança e conquiste pontos.
+        </p>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-darker-custom rounded shadow-sm">
+            <a href="{{ url_for('ctf_ranking') }}" class="btn btn-outline-warning btn-sm fw-bold">
+                <i class="fas fa-trophy me-2"></i> Ranking Global
+            </a>
+
+            {% if current_user.is_authenticated and current_user.user_type in ['professor', 'admin'] %}
+            <a href="{{ url_for('create_ctf') }}" class="btn btn-primary btn-sm fw-bold">
+                <i class="fas fa-plus-circle me-2"></i> Criar Novo CTF
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for challenge in challenges %}
+                <div class="col">
+                    <a href="{{ url_for('ctf_challenge', ctf_id=challenge.id) }}" class="card ctf-card h-100 shadow-sm text-decoration-none p-3 d-flex flex-column">
+                        
+                        <h2 class="h5 fw-bold mb-2 text-primary">{{ challenge.title }}</h2>
+                        <p class="text-muted small mb-3 flex-grow-1">{{ challenge.description }}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="badge 
+                                {% if challenge.difficulty == 'Fácil' %}bg-success
+                                {% elif challenge.difficulty == 'Médio' %}bg-warning text-dark
+                                {% elif challenge.difficulty == 'Difícil' %}bg-danger
+                                {% else %}bg-secondary
+                                {% endif %}">
+                                {{ challenge.difficulty }}
+                            </span>
+                            
+                            <span class="badge bg-info text-dark fw-bold">
+                                <i class="fas fa-star me-1"></i> {{ challenge.points }} Pontos
+                            </span>
+                        </div>
+                    </a>
+
+                    {% if current_user.is_authenticated and current_user.user_type in ['professor', 'admin'] %}
+                    <div class="text-end mt-2">
+                         <a href="{{ url_for('manage_ctf', ctf_id=challenge.id) }}" class="btn btn-sm btn-outline-secondary w-100">
+                            <i class="fas fa-edit me-1"></i> Gerenciar Desafio
+                        </a>
+                    </div>
+                    {% endif %}
+
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center" role="alert">
+                        <i class="fas fa-info-circle me-2"></i> Nenhum desafio CTF disponível no momento.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-  </a>
-  {% else %}
-    <p class="muted">Nenhum desafio ainda.</p>
-  {% endfor %}
 </div>
+
+{% block extra_styles %}
+<style>
+    /* Estilo para dar um hover interativo */
+    .ctf-card {
+        transition: all 0.3s ease-in-out;
+        /* Garante que o card é o link principal, mas permite o botão de gerenciar separado */
+        display: block !important;
+        position: relative;
+    }
+    .ctf-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        border-color: var(--bs-primary) !important;
+    }
+    .bg-darker-custom {
+        background-color: rgba(30, 41, 59, 0.7); /* Cor ligeiramente mais escura que o fundo principal */
+    }
+</style>
+{% endblock %}
+
 {% endblock %}

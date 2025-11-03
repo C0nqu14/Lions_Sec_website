@@ -1,88 +1,194 @@
-/* Grid de fundo sutil */
-.bg-grid { position: fixed; inset: 0; pointer-events: none;
-    background-image: linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-                      linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
-    background-size: 26px 26px; opacity: .35; }
+/* Paleta de Cores e Variáveis (FINAL: Minimalista LIONS - Black, White & Red) */
+:root {
+  /* DARK MODE (Padrão: Máximo Contraste) */
+  --color-brand-action: #cc0000;      /* Vermelho LIONS (Ação Principal) */
+  --color-danger: #ef4444;            /* Vermelho para Destaque/Avançado */
+  --color-success: #22c55e;           /* Verde para Sucesso */
+  --color-bg-dark: #000000;           /* Fundo Preto Total */
+  --color-bg-card: #0a0a0a;           /* Card Quase Preto (Para profundidade) */
+  --color-text-primary: #ffffff;      /* Branco Puro */
+  --color-text-muted: #B0B0B0;        /* CORREÇÃO FINAL: Cinza CLARO para Máxima Visibilidade (Texto Secundário) */
+  --color-border: #1a1a1a;            /* Borda Sutil */
+  --color-input-bg: #000000;          /* Fundo do Input: Preto Puro */
+  --shadow-md: 0 4px 15px rgba(204, 0, 0, 0.2); /* Sombra Vermelha Sutil */
+}
+
+.light {
+  /* LIGHT MODE (Contraste Limpo e Profissional) */
+  --color-brand-action: #a00000;
+  --color-danger: #dc2626;      
+  --color-success: #16a34a;
+  --color-bg-dark: #ffffff;
+  --color-bg-card: #f8f8f8;
+  --color-text-primary: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-input-bg: #ffffff;
+  --shadow-md: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Base e Estrutura */
+body {
+  background: var(--color-bg-dark);
+  color: var(--color-text-primary);
+  font-family: 'Inter', sans-serif;
+  transition: background-color 0.4s, color 0.4s;
+  min-height: 100vh;
+}
+
+/* Navbar (Solidez e Foco) */
+.navbar {
+  background: var(--color-bg-card) !important;
+  border-bottom: 2px solid var(--color-brand-action); /* Linha Vermelha de Ação */
+  box-shadow: var(--shadow-md);
+}
+.navbar-brand {
+  font-weight: 900 !important;
+  font-size: 1.5rem;
+  color: var(--color-text-primary) !important; 
+  letter-spacing: 1px;
+}
+.navbar-brand .red-dot {
+  color: var(--color-brand-action);
+}
+.nav-link {
+  font-weight: 500;
+  color: var(--color-text-primary) !important;
+  transition: color 0.2s;
+}
+.nav-link:hover {
+  color: var(--color-brand-action) !important; 
+}
+
+/* Títulos e Destaques */
+.page-title, .hero-title { 
+  font-size: 2.8rem; 
+  font-weight: 900; 
+  color: var(--color-text-primary);
+}
+.highlight-red {
+  color: var(--color-brand-action);
+}
+
+/* Botões (Foco na Cor Vermelha) */
+.btn-primary { 
+  background: var(--color-brand-action); 
+  border-color: var(--color-brand-action); 
+  color: white; 
+  transition: all 0.25s;
+}
+.btn-primary:hover { 
+  filter: brightness(1.2); 
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(204, 0, 0, 0.4);
+}
+.btn-outline-red {
+  color: var(--color-brand-action);
+  border-color: var(--color-brand-action);
+}
+.btn-outline-red:hover {
+  background: var(--color-brand-action);
+  color: white !important;
+}
+
+/* Cartões (Limpos e Sólidos) */
+.card { 
+  border: 1px solid var(--color-border); 
+  background: var(--color-bg-card);
+  border-radius: 4px;
+  box-shadow: var(--shadow-md);
+  transition: border-color 0.3s;
+}
+.card:hover { 
+  border-color: var(--color-brand-action);
+}
+
+/* ESTILIZAÇÃO DOS INPUTS DE FORMULÁRIO (Hacker Style) */
+.form-control {
+  background: var(--color-input-bg) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+  border-radius: 4px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:focus {
+  background: var(--color-input-bg) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-brand-action) !important; /* Borda vermelha ao focar */
+  box-shadow: 0 0 0 0.25rem rgba(204, 0, 0, 0.2); /* Neon sutil no foco */
+}
+
+/* Garante que o input-group-text (ícones) combine com o tema */
+.input-group-text {
+  background: var(--color-bg-card) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-brand-action) !important; /* Ícones em vermelho LIONS para destaque */
+}
+
+/* Checkbox simples para combinar */
+.form-check-input {
+  border-color: var(--color-border) !important;
+  background-color: var(--color-bg-card) !important;
+}
+
+.form-check-input:checked {
+  background-color: var(--color-brand-action) !important;
+  border-color: var(--color-brand-action) !important;
+}
+
+
+/* ESTILIZAÇÃO DE BADGES (Para a página de Cursos) */
+.badge.text-bg-warning { 
+  background-color: #f59e0b !important; /* Amarelo Laranja para Intermediário */
+  color: #000000 !important; 
+}
+.badge.text-bg-danger { 
+  background-color: var(--color-danger) !important; /* Vermelho forte para Avançado */
+  color: #ffffff !important; 
+}
+.badge.text-bg-success { 
+  background-color: var(--color-success) !important; /* Verde para Iniciante */
+  color: #000000 !important; 
+}
+
+
+/* GARANTIA DE CONTRASTE: Títulos e Textos Muted */
+.card-title {
+  color: var(--color-text-primary) !important;
+}
+
+.text-muted {
+  /* Sobrescreve a cor do Bootstrap para usar a variável do tema (Garantia de Legibilidade) */
+  color: var(--color-text-muted) !important;
+}
+
+/* Efeito de Texto Scramble/Criptografia (Usando JS) */
+.scramble-target {
+  font-weight: 600; 
+  transition: color 0.2s;
+}
+
+.scramble-target:hover {
+  color: var(--color-brand-action) !important; 
+}
+/* --- Estilos para o Avatar de Iniciais (Fallback) --- */
+.avatar-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; /* Define o tamanho do avatar */
+  height: 32px;
+  border-radius: 50%;
   
-  /* UI utilities */
-  .link{color:#d4d4d8} .link:hover{color:white}
-  .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;padding:.65rem 1.1rem;border:1px solid rgba(255,255,255,.12);transition:.18s}
-  .btn-primary{background:#ef4444;color:white;border-color:transparent}
-  .btn-primary:hover{filter:brightness(1.05)}
-  .btn-ghost{background:transparent;color:#e4e4e7}
-  .btn-ghost:hover{background:rgba(255,255,255,.04)}
+  /* Cores */
+  background-color: var(--bs-danger); /* Fundo vermelho */
+  color: #fff; /* Texto branco */
+  font-size: 0.8em;
+  font-weight: bold;
+  flex-shrink: 0;
   
-  .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);backdrop-filter:blur(8px);padding:1.25rem;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.45)}
-  .card-title{font-size:1.5rem;font-weight:800;margin-bottom:.75rem}
-  .page-title{font-size:2rem;font-weight:800;margin:1rem 0 1.25rem}
-  .label{color:#a1a1aa;font-size:.875rem}
-  .input{width:100%;background:#080808;border:1px solid rgba(255,255,255,.06);border-radius:.65rem;padding:.6rem .9rem;color:#f4f4f5}
-  .input:focus{outline:none;border-color:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.12)}
-  .muted{color:#9ca3af}
-  .tag{display:inline-block;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:9999px;padding:.25rem .6rem;font-size:.75rem;color:#e5e7eb}
-  .icon{font-size:1.6rem}
-  .action:hover{transform:translateY(-2px)}
-  
-  /* Flash messages */
-  .flash{padding:.75rem 1rem;border-radius:.75rem;font-weight:700}
-  .flash.success{background:#16a34a;color:white}
-  .flash.info{background:#2563eb;color:white}
-  .flash.warning{background:#f59e0b;color:black}
-  .flash.danger{background:#ef4444;color:white}
-  
-  /* Animations */
-  @keyframes fade-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-  .animate-fade-in{animation:fade-in .45s ease-out both}
-  
-
-  /* Fundo animado estilo partículas */
-  body {
-    background: radial-gradient(circle at center, #0d0d0d, #000000 90%);
-  }
-
-  .glow-text {
-    font-size: 3rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    color: #fff;
-    text-shadow: 0 0 10px #b300ff, 0 0 20px #b300ff, 0 0 40px #ff00ff;
-    animation: glitch 1.5s infinite;
-  }
-
-  @keyframes glitch {
-    0% { text-shadow: 2px 2px #ff00ff, -2px -2px #00ffff; }
-    20% { text-shadow: -2px 0px #00ffff, 2px -2px #ff00ff; }
-    40% { text-shadow: 2px -2px #ff00ff, -2px 2px #00ffff; }
-    60% { text-shadow: -2px -2px #00ffff, 2px 2px #ff00ff; }
-    100% { text-shadow: 2px 2px #ff00ff, -2px -2px #00ffff; }
-  }
-
-  .btn-hakai {
-    background: linear-gradient(135deg, #ff005e, #b300ff);
-    color: white;
-    font-weight: bold;
-    padding: 1rem 2rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 0 20px #ff00ff, 0 0 40px #ff005e;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .btn-hakai:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 40px #ff00ff, 0 0 80px #ff005e;
-  }
-
-  /* Partículas insanas no fundo */
-  .particle {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: #ff00ff;
-    border-radius: 50%;
-    animation: float 10s infinite ease-in-out;
-  }
-
-  @keyframes float {
-    from { transform: translateY(100vh) scale(0.5); opacity: 0.6; }
-    to { transform: translateY(-10vh) scale(1.2); opacity: 0; }
-  }
+  /* Borda para combinar com a imagem normal */
+  border: 2px solid var(--bs-primary); 
+  text-transform: uppercase; /* Garantir que as iniciais fiquem maiúsculas */
+}

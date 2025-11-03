@@ -1,14 +1,53 @@
 {% extends "base.html" %}
 {% block title %}Editar Curso{% endblock %}
 {% block content %}
-<div class="card" style="max-width:720px; margin:2rem auto;">
-  <h2 class="card-title">Editar Curso</h2>
-  <form method="POST" action="{{ url_for('edit_course', course_id=course.id) }}" style="display:flex; flex-direction:column; gap:12px;">
-    <label class="label">Título</label>
-    <input class="input" name="title" value="{{ course.title }}" required />
-    <label class="label">Descrição</label>
-    <textarea class="input" name="description" rows="6" required>{{ course.description }}</textarea>
-    <button class="btn btn-primary" type="submit">Salvar Alterações</button>
-  </form>
+
+<div class="d-flex justify-content-center py-5">
+    <div class="col-12 col-md-10 col-lg-7">
+        <h1 class="page-title text-center mb-4">
+            <span class="highlight-red">//</span> EDITAR: {{ course.title }}
+        </h1>
+        
+        <div class="card p-4 shadow">
+            
+            <form method="POST" action="{{ url_for('edit_course', course_id=course.id) }}" enctype="multipart/form-data">
+
+                <div class="text-center mb-4 border-bottom pb-3">
+                    {% set course_image_url = url_for('static', filename='course_images/' + course.course_image) %}
+                    <img src="{{ course_image_url }}" alt="Imagem do Curso" 
+                         class="img-fluid rounded shadow-sm" 
+                         style="max-width: 400px; height: 200px; object-fit: cover;">
+                    <p class="text-muted small mt-2">Imagem atual do curso.</p>
+                </div>
+
+                <div class="mb-4">
+                    <label for="course_image" class="form-label fw-bold">Alterar Imagem do Curso:</label>
+                    <input type="file" id="course_image" name="course_image" class="form-control form-control-dark">
+                    <div class="form-text text-muted">A imagem deve ser atrativa (PNG, JPG, GIF).</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="title" class="form-label fw-bold">Título do Curso:</label>
+                    <input type="text" id="title" name="title" class="form-control form-control-dark" 
+                           value="{{ course.title }}" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="description" class="form-label fw-bold">Descrição Detalhada:</label>
+                    <textarea id="description" name="description" rows="6" 
+                              class="form-control form-control-dark" required>{{ course.description }}</textarea>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary flex-fill" type="submit">
+                        <i class="fas fa-save me-2"></i> Salvar Alterações
+                    </button>
+                    <a href="{{ url_for('manage_course', course_id=course.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Voltar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

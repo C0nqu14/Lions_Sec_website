@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Criar Novo Desafio CTF{% endblock %}
+{% block title %}Gerenciar CTF: {{ ctf.title }}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center py-5">
     <div class="col-12 col-md-10 col-lg-8 col-xl-6">
 
-        <h1 class="page-title text-center mb-4">
-            <span class="highlight-red">//</span> NOVO DESAFIO CTF
+        <h1 class="page-title text-center mb-2">
+            <span class="highlight-red">//</span> GERENCIAR CTF
         </h1>
+        <p class="text-muted text-center mb-4 pb-3 border-bottom">
+            Editando o Desafio: {{ ctf.title }}
+        </p>
         
-        <div class="card p-4 shadow-lg">
-            <h2 class="h4 mb-4 fw-bold text-primary border-bottom pb-2">
-                <i class="fas fa-hammer me-2"></i> Configure o Desafio
-            </h2>
-
-            <form method="POST" action="{{ url_for('create_ctf') }}" class="row g-3">
+        <div class="card p-4 mb-4 shadow-lg">
+            
+            <form action="{{ url_for('manage_ctf', ctf_id=ctf.id) }}" method="POST" class="row g-3">
                 
                 <div class="col-12">
                     <label for="title" class="form-label small text-muted">Título do Desafio</label>
@@ -23,6 +23,7 @@
                         type="text" 
                         id="title" 
                         name="title" 
+                        value="{{ ctf.title }}"
                         required 
                         class="form-control form-control-dark" 
                         placeholder="Ex: Quebra-Cabeça de Buffer Overflow"
@@ -38,16 +39,16 @@
                         required 
                         class="form-control form-control-dark"
                         placeholder="Descreva o cenário, a tarefa e as dicas iniciais para o jogador."
-                    ></textarea>
+                    >{{ ctf.description }}</textarea>
                 </div>
                 
                 <div class="col-6">
                     <label for="difficulty" class="form-label small text-muted">Dificuldade</label>
                     <select id="difficulty" name="difficulty" class="form-select form-control-dark">
-                        <option value="Fácil">Fácil</option>
-                        <option value="Médio">Médio</option>
-                        <option value="Difícil">Difícil</option>
-                        <option value="Extremo">Extremo</option>
+                        <option value="Fácil" {% if ctf.difficulty == 'Fácil' %}selected{% endif %}>Fácil</option>
+                        <option value="Médio" {% if ctf.difficulty == 'Médio' %}selected{% endif %}>Médio</option>
+                        <option value="Difícil" {% if ctf.difficulty == 'Difícil' %}selected{% endif %}>Difícil</option>
+                        <option value="Extremo" {% if ctf.difficulty == 'Extremo' %}selected{% endif %}>Extremo</option>
                     </select>
                 </div>
 
@@ -57,6 +58,7 @@
                         type="number" 
                         id="points" 
                         name="points" 
+                        value="{{ ctf.points }}"
                         min="1"
                         required 
                         class="form-control form-control-dark" 
@@ -65,30 +67,36 @@
                 </div>
 
                 <div class="col-12">
-                    <label for="flag" class="form-label small text-muted">Flag (Resposta Correta)</label>
+                    <label for="flag" class="form-label small text-muted">Nova Flag (Deixe em branco para manter a atual)</label>
                     <input 
                         type="text" 
                         id="flag" 
                         name="flag" 
-                        placeholder="LIONS_SEC{sua_flag_secreta}" 
-                        required 
+                        placeholder="LIONS_SEC{nova_flag_secreta}" 
                         class="form-control form-control-dark" 
                     />
-                    <div class="form-text text-warning">ATENÇÃO: A flag será armazenada com LIONS_SEC{Hash}no banco de dados.</div>
+                    <div class="form-text text-warning">A flag atual está armazenada com LIONS_SEC{HASH}. Insira uma nova se quiser alterá-la.</div>
                 </div>
                 
                 <div class="col-12 mt-4">
                     <button class="btn btn-primary w-100" type="submit">
-                        <i class="fas fa-rocket me-2"></i> Criar Desafio
+                        <i class="fas fa-save me-2"></i> Salvar Alterações
                     </button>
                 </div>
             </form>
+        </div>
+
+        <div class="text-center pt-3 border-top">
+            <a href="{{ url_for('ctfs') }}" class="text-muted text-decoration-none small d-block mb-3">
+                <i class="fas fa-arrow-left me-1"></i> Voltar para Lista de Desafios
+            </a>
             
-            <div class="text-center mt-3">
-                <a href="{{ url_for('ctfs') }}" class="text-muted text-decoration-none small">
-                    <i class="fas fa-arrow-left me-1"></i> Voltar para Desafios
-                </a>
-            </div>
+            <form action="{{ url_for('delete_ctf', ctf_id=ctf.id) }}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-danger btn-sm" 
+                        onclick="return confirm('ATENÇÃO: Deletar o desafio {{ ctf.title }} é IRREVERSÍVEL. Tem certeza?');">
+                    <i class="fas fa-trash-alt me-1"></i> Deletar Desafio
+                </button>
+            </form>
         </div>
     </div>
 </div>

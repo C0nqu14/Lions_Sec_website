@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Módulo: {{ module.title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center py-5">
+    <div class="col-12 col-md-10 col-lg-6">
+
+        <h1 class="page-title text-center mb-2">
+            <span class="highlight-red">//</span> EDITAR MÓDULO
+        </h1>
+        <p class="text-muted text-center mb-4 pb-3 border-bottom">
+            Módulo: {{ module.title }} do Curso: {{ course.title }}
+        </p>
+
+        <div class="card p-4 mb-4 shadow-lg">
+            
+            <form action="{{ url_for('edit_module', module_id=module.id) }}" method="POST" class="row g-3">
+                
+                <div class="col-12">
+                    <label for="module_title" class="form-label small text-muted">Título do Módulo</label>
+                    <input 
+                        type="text" 
+                        id="module_title" 
+                        name="module_title" 
+                        value="{{ module.title }}" 
+                        required 
+                        class="form-control form-control-dark" 
+                        placeholder="Ex: Introdução ao Pentesting"
+                    >
+                </div>
+                
+                <div class="col-12 col-md-4">
+                    <label for="module_order" class="form-label small text-muted">Ordem</label>
+                    <input 
+                        type="number" 
+                        id="module_order" 
+                        name="module_order" 
+                        value="{{ module.order_in_course or 1 }}" 
+                        min="1"
+                        required 
+                        class="form-control form-control-dark" 
+                        placeholder="Ordem"
+                    >
+                    <div class="form-text">Define a ordem de exibição no curso.</div>
+                </div>
+
+                <div class="col-12 col-md-8 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save me-2"></i> Salvar Alterações do Módulo
+                    </button>
+                </div>
+                
+            </form>
+        </div>
+
+        <div class="text-center pt-3 border-top">
+            <a href="{{ url_for('manage_course', course_id=course.id) }}" class="text-muted text-decoration-none small d-block mb-3">
+                <i class="fas fa-arrow-left me-1"></i> Voltar para Gerenciar Curso
+            </a>
+            
+            <form action="{{ url_for('delete_module', module_id=module.id) }}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-danger btn-sm" 
+                        onclick="return confirm('ATENÇÃO: Deletar o módulo {{ module.title }} é IRREVERSÍVEL e apagará TODOS os vídeos nele contidos. Tem certeza?');">
+                    <i class="fas fa-trash-alt me-1"></i> Deletar Módulo
+                </button>
+            </form>
+        </div>
+            
+    </div>
+</div>
+{% endblock %}

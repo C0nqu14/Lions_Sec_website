@@ -1,51 +1,96 @@
 {% extends "base.html" %}
+
 {% block title %}Assistir - {{ course.title }}{% endblock %}
+
 {% block content %}
-<div style="display:grid; grid-template-columns:3fr 1fr; gap:16px;">
-  
-  <div>
-    <div class="card">
-        <h1 class="card-title">{{ course.title }}</h1>
-        
-        <div style="position:relative; width:100%; padding-top:56.25%; border-radius:10px; overflow:hidden; background:#000;">
-          {% if current_video %}
-            <iframe src="{{ current_video.video_url }}" style="position:absolute; inset:0; width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>
-          {% else %}
-            <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#777;">Nenhum vídeo para assistir.</div>
-          {% endif %}
+<div class="container py-5">
+    <h1 class="page-title mb-4">
+        <i class="fas fa-video me-2"></i> Assistindo: {{ course.title }}
+    </h1>
+
+    <div class="row">
+        <div class="col-lg-9 mb-4">
+            <div class="card p-3 bg-dark-secondary">
+                
+                <div style="position:relative; width:100%; padding-top:56.25%; border-radius:8px; overflow:hidden; background:#000; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);">
+                    {% if current_video %}
+                        <iframe src="{{ current_video.video_url }}" 
+                                style="position:absolute; inset:0; width:100%; height:100%;" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen></iframe>
+                    {% else %}
+                        <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#9aa0a6; font-size:1.2rem;">
+                            <i class="fas fa-exclamation-circle fa-2x mb-3 text-warning"></i>
+                            Nenhum vídeo selecionado ou disponível neste curso.
+                            {% if modules and modules[0].videos %}
+                                <a href="{{ url_for('watch_course', course_id=course.id, video_id=modules[0].videos[0].id) }}" class="btn btn-primary mt-3">
+                                    <i class="fas fa-play me-2"></i> Iniciar o Primeiro Vídeo
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {% if current_video %}
+                    <div class="mt-4 p-3 border-start border-3 border-danger">
+                        <h2 class="h4 mb-1 text-primary">
+                            {{ current_video.module.order_in_course }}. {{ current_video.module.title }}
+                        </h2>
+                        
+                        <h3 class="h2 fw-bold text-dark mb-3">
+                            {{ current_video.order_in_course }}. {{ current_video.title }}
+                        </h3>
+
+                        <p class="text-secondary-light">{{ current_video.description|default('Nenhuma descrição fornecida para este vídeo.') }}</p>
+                    </div>
+                {% endif %}
+
+            </div>
         </div>
-        
-        {% if current_video %}
-            <h2 style="font-weight:800; margin-top:12px; color:#22c55e;">{{ current_video.module.title }} > {{ current_video.title }}</h2>
-        {% endif %}
 
-        <div style="margin-top:12px; color:#9aa0a6;">{{ course.description }}</div>
+        <div class="col-lg-3">
+            <div class="card p-3 bg-dark-secondary sticky-top" style="top: 20px;">
+                <h2 class="h5 fw-bold text-success mb-3 border-bottom border-secondary pb-2">
+                    <i class="fas fa-list-alt me-1"></i> Conteúdo do Curso
+                </h2>
+                
+                <div style="max-height: 70vh; overflow-y: auto;">
+                    {% if modules %}
+                        {% for module in modules|sort(attribute='order_in_course') %}
+                            <div class="mb-3 p-2 rounded 
+                                {% if current_video and current_video.module.id == module.id %}bg-dark-tertiary border border-danger{% endif %}">
+                                
+                                <h3 class="h6 fw-bold text-danger mb-2 cursor-pointer" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#module-{{ module.id }}" 
+                                    aria-expanded="{% if current_video and current_video.module.id == module.id %}true{% else %}false{% endif %}">
+                                    {{ module.order_in_course }}. {{ module.title }}
+                                </h3>
+
+                                <ul id="module-{{ module.id }}" class="list-unstyled ps-3 collapse 
+                                    {% if current_video and current_video.module.id == module.id %}show{% endif %}">
+                                    
+                                    {% for video in module.videos|sort(attribute='order_in_course') %}
+                                        {% set is_active = (current_video and current_video.id == video.id) %}
+                                        <li class="py-1">
+                                            <a href="{{ url_for('watch_course', course_id=course.id, video_id=video.id) }}" 
+                                               class="text-decoration-none d-flex align-items-center"
+                                               style="color:{{ '#22c55e' if is_active else '#9aa0a6' }}; font-weight:{{ 'bold' if is_active else 'normal' }}; font-size:.9rem;">
+                                                <i class="fas fa-{{ 'play-circle' if is_active else 'circle' }} me-2" style="font-size:.7em;"></i>
+                                                {{ video.order_in_course }}. {{ video.title }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">Nenhum módulo neste curso ainda.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <div class="card">
-    <h2 style="font-weight:800; margin-bottom:12px;">Conteúdo do Curso</h2>
-    
-    {% for module in modules %}
-      <div style="border-bottom:1px solid rgba(255,255,255,.05); margin-bottom:10px; padding-bottom:10px;">
-        <h3 style="font-weight:700; color:#ef4444; margin-bottom:6px;">{{ module.order_in_course }}. {{ module.title }}</h3>
-        <ul style="list-style:none; padding-left:10px;">
-          {% for video in module.videos %}
-            {% set is_active = (current_video and current_video.id == video.id) %}
-            <li style="padding:4px 0;">
-              <a href="{{ url_for('watch_course', course_id=course.id, video_id=video.id) }}" 
-                 style="display:block; text-decoration:none; font-size:.9rem;
-                 color:{{ '#22c55e' if is_active else '#9aa0a6' }}; font-weight:{{ 'bold' if is_active else 'normal' }};"
-                 class="hover:text-cyan-400">
-                {% if is_active %} ⚡ {% else %} &bull; {% endif %} {{ video.order_in_course }}. {{ video.title }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% else %}
-      <p class="muted">Nenhum módulo neste curso ainda.</p>
-    {% endfor %}
-  </div>
 </div>
 {% endblock %}
